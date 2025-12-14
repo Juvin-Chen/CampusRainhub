@@ -32,7 +32,7 @@ public:
 
     void take_gear(RainGear* gear);  //借伞
     bool has_gear() const; //持有伞
-    void return_gear(); //还伞
+    std::unique_ptr<RainGear> return_gear(); //还伞
 
 private:
     QString id;
