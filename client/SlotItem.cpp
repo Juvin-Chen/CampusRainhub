@@ -129,7 +129,9 @@ void SlotItem::refreshStyle()
         "border: 2px solid %1; "
         "}").arg(borderColor));
     
-    update(); // 强制刷新样式
+    // 强制刷新样式
+    update();
+    repaint();
 }
 
 void SlotItem::mousePressEvent(QMouseEvent *event)

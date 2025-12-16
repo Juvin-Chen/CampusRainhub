@@ -868,8 +868,11 @@ void MainWindow::populateSlots(bool borrowMode)
     
     // 从数据库刷新槽位状态（颜色和类型完全由 refreshSlotsFromDatabase 控制）
     refreshSlotsFromDatabase();
-    // 不再通过 setEnabled(true/false) 灰掉控件，否则图标会显得“糊”；
+    // 不再通过 setEnabled(true/false) 灰掉控件，否则图标会显得"糊"；
     // 借伞/还伞模式的可点击逻辑在 handleBorrowGear / handleReturnGear 中根据状态再做检查。
+    
+    // 确保UI立即更新
+    QApplication::processEvents();
 }
 
 void MainWindow::updateRoleLabel()
@@ -1096,8 +1099,10 @@ void MainWindow::refreshSlotsFromDatabase()
             slot->setGearTypeName(typeName);
         }
         
-        // 确保样式已应用
+        // 确保样式已应用并立即刷新
         slot->setEnabled(true);
+        slot->repaint();
+        slot->update();
     }
     
     qDebug() << "[MainWindow] 已刷新站点" << m_currentStationId << "的槽位状态，共" << gears.size() << "个雨具";
@@ -1171,9 +1176,15 @@ void MainWindow::handleBorrowGear(int slotId, int slotIndex)
     m_currentUser->deduct(deposit);
     updateProfileFromUser();
     
-    // 刷新槽位状态
+    // 刷新槽位状态（借伞后，该槽位变为空，应该显示灰色）
     refreshSlotsFromDatabase();
-    populateSlots(true);
+    
+    // 强制刷新UI，确保样式立即更新
+    for (auto *slot : m_slots) {
+        slot->repaint();
+        slot->update();
+    }
+    QApplication::processEvents(); // 处理事件循环，确保UI立即更新
     
     QMessageBox::information(this, tr("借伞成功"), tr("雨具已成功借出！\n押金：%1 元已扣除").arg(deposit));
 }
@@ -1194,13 +1205,28 @@ void MainWindow::handleReturnGear(int slotId, int slotIndex)
     
     QString gearId = currentBorrow->gearId;
     
-    // 检查该槽位是否为空
+    // 检查该槽位是否为空（槽位为空表示可以还伞）
+    // 注意：fetchGearsByStation只返回该站点中存在的雨具，如果槽位是空的，不会出现在结果中
     auto gears = DatabaseManager::fetchGearsByStation(m_currentStationId);
+    bool slotOccupied = false;
     for (const auto &gear : gears) {
-        if (gear.slotId == slotId && gear.status == 1) {
-            QMessageBox::warning(this, tr("提示"), tr("该槽位已被占用，请选择其他空槽位"));
-            return;
+        if (gear.slotId == slotId) {
+            // 如果槽位有雨具，且状态为可借（status==1），说明槽位被占用
+            if (gear.status == 1) {
+                slotOccupied = true;
+                break;
+            }
+            // 如果状态是其他（损坏等），也认为被占用
+            if (gear.status == 3) {
+                slotOccupied = true;
+                break;
+            }
         }
+    }
+    
+    if (slotOccupied) {
+        QMessageBox::warning(this, tr("提示"), tr("该槽位已被占用，请选择其他空槽位"));
+        return;
     }
     
     // 确认对话框
@@ -1228,9 +1254,15 @@ void MainWindow::handleReturnGear(int slotId, int slotIndex)
     }
     updateProfileFromUser();
     
-    // 刷新槽位状态
+    // 刷新槽位状态（还伞后，该槽位变为有雨具，应该显示绿色）
     refreshSlotsFromDatabase();
-    populateSlots(false);
+    
+    // 强制刷新UI，确保样式立即更新
+    for (auto *slot : m_slots) {
+        slot->repaint();
+        slot->update();
+    }
+    QApplication::processEvents(); // 处理事件循环，确保UI立即更新
     
     QString msg = tr("雨具已成功归还！");
     if (cost > 0) {
