@@ -1,12 +1,13 @@
 -- 插入初始测试数据
 -- 插入测试用户（首次登录时password为NULL，is_active为0，需要激活设置密码）
 INSERT INTO users (user_id, password, real_name, role, credit, avatar_id, is_active) VALUES
-('202483290399', NULL, '陈秋雯', 0, 100.00, 1, 0),
-('202383290032', NULL, '吴悠', 0, 50.00, 1, 0),
-('202483290447', NULL, '刘谨言', 0, 30.00, 1, 0),
-('202511420317', NULL, '陈柯安', 0, 100.00, 1, 0),
-('T001', NULL, '赵老师', 1, 200.00, 2, 0),
-('ADMIN', '123456', '系统管理员', 9, 9999.00, 3, 1)
+('202483290399', NULL, 'cqw', 0, 100.00, 1, 0),
+('202383290032', NULL, 'wy', 0, 50.00, 1, 0),
+('202483290447', NULL, 'ljy', 0, 30.00, 1, 0),
+('202511420317', NULL, 'cka', 0, 100.00, 1, 0),
+('T001', NULL, 'teacher1', 1, 200.00, 2, 0),
+('T002', NULL, 'teacher2', 1, 200.00, 2, 0),
+('admin', '123456', 'admin', 9, 9999.00, 3, 1)
 ON DUPLICATE KEY UPDATE user_id=user_id;
 
 -- 插入站点数据（根据GlobalEnum.hpp中的Station枚举）
@@ -28,8 +29,8 @@ INSERT INTO station (name, pos_x, pos_y, status, unavailable_slots) VALUES
 ('行政楼', 0.50, 0.55, 1, '')
 ON DUPLICATE KEY UPDATE name=name;
 
--- 注意：雨具数据已迁移到 data_insert2.0.sql，请使用该脚本插入雨具数据
--- 本脚本仅保留用户和站点数据，避免重复插入
+-- 雨具数据全部迁移到 data_insert2.0.sql，避免像之前一样重复插入...
+-- 本脚本仅保留用户和站点数据
 
 
 SELECT 'Data initialization completed successfully!' AS message;
