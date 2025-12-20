@@ -32,8 +32,8 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/client
 )
 
-# 源文件
-set(SOURCES
+# 客户端源文件
+set(CLIENT_SOURCES
     client/main.cpp
     client/MainWindow.cpp
     client/SlotItem.cpp
@@ -44,10 +44,35 @@ set(SOURCES
     Control/DatabaseManager.cpp
 )
 
-# 头文件
-set(HEADERS
+# 管理员后台源文件
+set(ADMIN_SOURCES
+    admin/main.cpp
+    admin/AdminMainWindow.cpp
+    Model/User.cpp
+    Model/Stationlocal.cpp
+    Model/StationUtils.cpp
+    Control/DatabaseManager.cpp
+)
+
+# 客户端头文件
+set(CLIENT_HEADERS
     client/MainWindow.h
     client/SlotItem.h
+    Model/User.h
+    Model/RainGear.hpp
+    Model/RainGear_subclasses.hpp
+    Model/RainGearFactory.h
+    Model/GlobalEnum.hpp
+    Model/Stationlocal.h
+    Model/StationUtils.h
+    Control/DBHelper.h
+    Control/RainGearDAO.hpp
+    Control/DatabaseManager.h
+)
+
+# 管理员后台头文件
+set(ADMIN_HEADERS
+    admin/AdminMainWindow.h
     Model/User.h
     Model/RainGear.hpp
     Model/RainGear_subclasses.hpp
@@ -66,11 +91,22 @@ set(RESOURCES
     map_resources/map.qrc
 )
 
-# 创建可执行文件
-add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${RESOURCES})
+# 创建客户端可执行文件
+add_executable(${PROJECT_NAME} ${CLIENT_SOURCES} ${CLIENT_HEADERS} ${RESOURCES})
 
-# 链接Qt库
+# 创建管理员后台可执行文件
+add_executable(${PROJECT_NAME}_Admin ${ADMIN_SOURCES} ${ADMIN_HEADERS} ${RESOURCES})
+
+# 链接Qt库（客户端）
 target_link_libraries(${PROJECT_NAME}
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Sql
+    Qt${QT_VERSION_MAJOR}::Network
+)
+
+# 链接Qt库（管理员后台）
+target_link_libraries(${PROJECT_NAME}_Admin
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Sql
@@ -79,20 +115,61 @@ target_link_libraries(${PROJECT_NAME}
 
 # Windows特定配置
 if(WIN32)
-    # MySQL库路径
+    # MySQL DLL路径（使用桌面dll文件夹的配套文件）
+    set(DLL_DIR "C:/Users/hdcqW/Desktop/dll")
     set(MYSQL_LIB_DIR "C:/Program Files/MySQL/MySQL Server 8.0/lib")
-    set(MYSQL_DLL "${MYSQL_LIB_DIR}/libmysql.dll")
+    set(MYSQL_DLL "${DLL_DIR}/libmysql.dll")
+    set(MYSQL_SSL_DLL "${DLL_DIR}/libssl-3-x64.dll")
+    set(MYSQL_CRYPTO_DLL "${DLL_DIR}/libcrypto-3-x64.dll")
+    set(MYSQL_DRIVER_DLL "${DLL_DIR}/sqldrivers/qsqlmysql.dll")
     
-    # 链接MySQL库
+    # 链接MySQL库（客户端）
     target_link_directories(${PROJECT_NAME} PRIVATE ${MYSQL_LIB_DIR})
     target_link_libraries(${PROJECT_NAME} libmysql)
     
-    # 复制MySQL DLL到输出目录
+    # 链接MySQL库（管理员后台）
+    target_link_directories(${PROJECT_NAME}_Admin PRIVATE ${MYSQL_LIB_DIR})
+    target_link_libraries(${PROJECT_NAME}_Admin libmysql)
+    
+    # 复制MySQL DLL到输出目录（客户端）
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "${MYSQL_DLL}"
         $<TARGET_FILE_DIR:${PROJECT_NAME}>
-        COMMENT "复制MySQL DLL到输出目录"
+        COMMENT "复制MySQL DLL到客户端输出目录"
+    )
+    # 复制MySQL的OpenSSL库到输出目录（客户端）
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${MYSQL_SSL_DLL}"
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMENT "复制MySQL的libssl到客户端输出目录"
+    )
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${MYSQL_CRYPTO_DLL}"
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+        COMMENT "复制MySQL的libcrypto到客户端输出目录"
+    )
+    # 复制MySQL DLL到输出目录（管理员后台）
+    add_custom_command(TARGET ${PROJECT_NAME}_Admin POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${MYSQL_DLL}"
+        $<TARGET_FILE_DIR:${PROJECT_NAME}_Admin>
+        COMMENT "复制MySQL DLL到管理员后台输出目录"
+    )
+    # 复制MySQL的OpenSSL库到输出目录（管理员后台）
+    add_custom_command(TARGET ${PROJECT_NAME}_Admin POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${MYSQL_SSL_DLL}"
+        $<TARGET_FILE_DIR:${PROJECT_NAME}_Admin>
+        COMMENT "复制MySQL的libssl到管理员后台输出目录"
+    )
+    add_custom_command(TARGET ${PROJECT_NAME}_Admin POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${MYSQL_CRYPTO_DLL}"
+        $<TARGET_FILE_DIR:${PROJECT_NAME}_Admin>
+        COMMENT "复制MySQL的libcrypto到管理员后台输出目录"
     )
     
     # 从桌面dll文件夹复制所需的DLL
@@ -128,32 +205,89 @@ if(WIN32)
                         COMMAND ${CMAKE_COMMAND} -E copy_if_different
                         "${RUNTIME_LIB}"
                         $<TARGET_FILE_DIR:${PROJECT_NAME}>
-                        COMMENT "复制MinGW运行时库 ${LIB_NAME} 到输出目录"
+                        COMMENT "复制MinGW运行时库 ${LIB_NAME} 到客户端输出目录"
+                    )
+                    add_custom_command(TARGET ${PROJECT_NAME}_Admin POST_BUILD
+                        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                        "${RUNTIME_LIB}"
+                        $<TARGET_FILE_DIR:${PROJECT_NAME}_Admin>
+                        COMMENT "复制MinGW运行时库 ${LIB_NAME} 到管理员后台输出目录"
                     )
                 endif()
             endforeach()
         endif()
     endif()
     
-    # 复制Qt的MySQL插件DLL（如果存在）
+    # 复制MySQL驱动插件DLL（使用桌面dll文件夹的配套版本）
     get_target_property(QT_QMAKE_EXECUTABLE Qt${QT_VERSION_MAJOR}::qmake LOCATION)
     if(QT_QMAKE_EXECUTABLE)
         get_filename_component(QT_BIN_DIR ${QT_QMAKE_EXECUTABLE} DIRECTORY)
         get_filename_component(QT_PREFIX_DIR ${QT_BIN_DIR} DIRECTORY)
-        set(QT_PLUGIN_DIR "${QT_PREFIX_DIR}/plugins/sqldrivers")
-        set(QT_MYSQL_PLUGIN "${QT_PLUGIN_DIR}/qsqlmysql.dll")
         
-        if(EXISTS "${QT_MYSQL_PLUGIN}")
+        if(EXISTS "${MYSQL_DRIVER_DLL}")
+            # 客户端
             add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E make_directory
                 $<TARGET_FILE_DIR:${PROJECT_NAME}>/sqldrivers
-                COMMENT "创建sqldrivers目录"
+                COMMENT "创建客户端sqldrivers目录"
             )
             add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${QT_MYSQL_PLUGIN}"
+                "${MYSQL_DRIVER_DLL}"
                 $<TARGET_FILE_DIR:${PROJECT_NAME}>/sqldrivers
-                COMMENT "复制Qt MySQL插件到sqldrivers目录"
+                COMMENT "复制MySQL驱动插件到客户端sqldrivers目录"
+            )
+            # 复制libmysql.dll到sqldrivers目录（qsqlmysql.dll的依赖）
+            add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${MYSQL_DLL}"
+                $<TARGET_FILE_DIR:${PROJECT_NAME}>/sqldrivers
+                COMMENT "复制libmysql.dll到客户端sqldrivers目录"
+            )
+            # 复制OpenSSL库到sqldrivers目录（libmysql.dll的依赖）
+            add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${MYSQL_SSL_DLL}"
+                $<TARGET_FILE_DIR:${PROJECT_NAME}>/sqldrivers
+                COMMENT "复制libssl到客户端sqldrivers目录"
+            )
+            add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${MYSQL_CRYPTO_DLL}"
+                $<TARGET_FILE_DIR:${PROJECT_NAME}>/sqldrivers
+                COMMENT "复制libcrypto到客户端sqldrivers目录"
+            )
+            # 管理员后台
+            add_custom_command(TARGET ${PROJECT_NAME}_Admin POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E make_directory
+                $<TARGET_FILE_DIR:${PROJECT_NAME}_Admin>/sqldrivers
+                COMMENT "创建管理员后台sqldrivers目录"
+            )
+            add_custom_command(TARGET ${PROJECT_NAME}_Admin POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${MYSQL_DRIVER_DLL}"
+                $<TARGET_FILE_DIR:${PROJECT_NAME}_Admin>/sqldrivers
+                COMMENT "复制MySQL驱动插件到管理员后台sqldrivers目录"
+            )
+            # 复制libmysql.dll到sqldrivers目录（qsqlmysql.dll的依赖）
+            add_custom_command(TARGET ${PROJECT_NAME}_Admin POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${MYSQL_DLL}"
+                $<TARGET_FILE_DIR:${PROJECT_NAME}_Admin>/sqldrivers
+                COMMENT "复制libmysql.dll到管理员后台sqldrivers目录"
+            )
+            # 复制OpenSSL库到sqldrivers目录（libmysql.dll的依赖）
+            add_custom_command(TARGET ${PROJECT_NAME}_Admin POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${MYSQL_SSL_DLL}"
+                $<TARGET_FILE_DIR:${PROJECT_NAME}_Admin>/sqldrivers
+                COMMENT "复制libssl到管理员后台sqldrivers目录"
+            )
+            add_custom_command(TARGET ${PROJECT_NAME}_Admin POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${MYSQL_CRYPTO_DLL}"
+                $<TARGET_FILE_DIR:${PROJECT_NAME}_Admin>/sqldrivers
+                COMMENT "复制libcrypto到管理员后台sqldrivers目录"
             )
         endif()
     endif()
@@ -172,11 +306,19 @@ if(WIN32)
         foreach(QT_DLL ${QT_DLLS})
             if(EXISTS "${QT_DLL}")
                 get_filename_component(QT_DLL_NAME ${QT_DLL} NAME)
+                # 客户端
                 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different
                     "${QT_DLL}"
                     $<TARGET_FILE_DIR:${PROJECT_NAME}>
-                    COMMENT "复制 ${QT_DLL_NAME} 到输出目录"
+                    COMMENT "复制 ${QT_DLL_NAME} 到客户端输出目录"
+                )
+                # 管理员后台
+                add_custom_command(TARGET ${PROJECT_NAME}_Admin POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${QT_DLL}"
+                    $<TARGET_FILE_DIR:${PROJECT_NAME}_Admin>
+                    COMMENT "复制 ${QT_DLL_NAME} 到管理员后台输出目录"
                 )
             else()
                 message(WARNING "Qt DLL not found: ${QT_DLL}")
@@ -188,16 +330,29 @@ if(WIN32)
         set(QT_PLATFORMS_DIR "${QT_PREFIX_DIR}/plugins/platforms")
         set(QT_PLATFORM_PLUGIN "${QT_PLATFORMS_DIR}/qwindows.dll")
         if(EXISTS "${QT_PLATFORM_PLUGIN}")
+            # 客户端
             add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E make_directory
                 $<TARGET_FILE_DIR:${PROJECT_NAME}>/platforms
-                COMMENT "创建platforms目录"
+                COMMENT "创建客户端platforms目录"
             )
             add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 "${QT_PLATFORM_PLUGIN}"
                 $<TARGET_FILE_DIR:${PROJECT_NAME}>/platforms
-                COMMENT "复制Qt平台插件到platforms目录"
+                COMMENT "复制Qt平台插件到客户端platforms目录"
+            )
+            # 管理员后台
+            add_custom_command(TARGET ${PROJECT_NAME}_Admin POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E make_directory
+                $<TARGET_FILE_DIR:${PROJECT_NAME}_Admin>/platforms
+                COMMENT "创建管理员后台platforms目录"
+            )
+            add_custom_command(TARGET ${PROJECT_NAME}_Admin POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${QT_PLATFORM_PLUGIN}"
+                $<TARGET_FILE_DIR:${PROJECT_NAME}_Admin>/platforms
+                COMMENT "复制Qt平台插件到管理员后台platforms目录"
             )
         endif()
     endif()
@@ -205,6 +360,9 @@ endif()
 
 # 设置输出目录
 set_target_properties(${PROJECT_NAME} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+)
+set_target_properties(${PROJECT_NAME}_Admin PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
 
