@@ -40,7 +40,6 @@ set(CLIENT_SOURCES
     Model/User.cpp
     Model/Stationlocal.cpp
     Model/StationUtils.cpp
-    Control/SystemManger.cpp
     Control/DatabaseManager.cpp
 )
 
@@ -66,7 +65,6 @@ set(CLIENT_HEADERS
     Model/Stationlocal.h
     Model/StationUtils.h
     Control/DBHelper.h
-    Control/RainGearDAO.hpp
     Control/DatabaseManager.h
 )
 
@@ -81,7 +79,6 @@ set(ADMIN_HEADERS
     Model/Stationlocal.h
     Model/StationUtils.h
     Control/DBHelper.h
-    Control/RainGearDAO.hpp
     Control/DatabaseManager.h
 )
 
