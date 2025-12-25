@@ -10,8 +10,7 @@ QSqlDatabase ConnectionPool::getThreadLocalConnection(){
     QString connectionName=QString("Conn_%1").arg((quint64)QThread::currentThreadId());
     if(QSqlDatabase::contains(connectionName)){
         return QSqlDatabase::database(connectionName);
-    }
-    else{
+    }else{
         QSqlDatabase db=QSqlDatabase::addDatabase("QMYSQL",connectionName);
         db.setHostName("127.0.0.1");
         db.setPort(3306);
