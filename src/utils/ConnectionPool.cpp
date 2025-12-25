@@ -1,5 +1,9 @@
 #include<QSqlDatabase>
+#include<QDebug>
+#include<QString>
+#include<QSqlError>
 #include<QThread>
+
 #include "ConnectionPool.h"
 
 QSqlDatabase ConnectionPool::getThreadLocalConnection(){

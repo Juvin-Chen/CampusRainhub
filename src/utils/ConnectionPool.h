@@ -6,12 +6,9 @@
 #pragma once
 
 #include <QSqlDatabase>
-#include <QSqlError>
-#include <QDebug>
-#include<QThread>
 
 class ConnectionPool{
     public:
         static QSqlDatabase getThreadLocalConnection(); //获取线程本地连接
         static void removeThreadConnection();  //移除线程本地连接
-}
+};
