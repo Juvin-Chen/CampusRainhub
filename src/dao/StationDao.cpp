@@ -8,8 +8,9 @@
 
 
 //select_all，查出所有站点包含的所有的雨具的完整信息
-QVector<std::unique_ptr<Stationlocal>> StationDao::selectAll(QSqlDatabase& db) {
-    QVector<std::unique_ptr<Stationlocal>> stationList;
+std::vector<std::unique_ptr<Stationlocal>> StationDao::selectAll(QSqlDatabase& db) {
+    std::vector<std::unique_ptr<Stationlocal>> stationList;
+    stationList.reserve(20);
     QSqlQuery query(db);
     query.prepare(QStringLiteral("SELECT * FROM station ORDER BY station_id"));
 
@@ -35,8 +36,8 @@ QVector<std::unique_ptr<Stationlocal>> StationDao::selectAll(QSqlDatabase& db) {
 
         //解析故障槽位字符串，数据库中是以逗号分隔的字符串如"1,5"
         if (!badSlotsStr.isEmpty()) {
-            QStringList slots=badSlotsStr.split(',',Qt::SkipEmptyParts);
-            for (const QString& s:slots) {
+            QStringList slotList = badSlotsStr.split(',', Qt::SkipEmptyParts);
+            for (const QString& s : slotList) {
                 int slotIndex = s.toInt();
                 //标记该槽位不可用
                 stationObj->mark_unavailable(slotIndex);
@@ -44,11 +45,12 @@ QVector<std::unique_ptr<Stationlocal>> StationDao::selectAll(QSqlDatabase& db) {
         }
 
         //调用GearDao查出该站点下的所有伞
-        auto gears=gearDao.selectByStation(db, sid);
-        for (auto& gear:gears) {
-            if(gear){
-                int slot=gear->get_slot_id();
-                stationObj->add_gear(slot, std::move(gear));
+        auto gears = gearDao.selectByStation(db, sid);
+        for (size_t i = 0; i < gears.size(); ++i) {
+            auto& gear = gears[i];
+            if (gear) {
+                int slotIdx = gear->get_slot_id();
+                stationObj->add_gear(slotIdx, std::move(gear));
             }
         }
 
@@ -79,9 +81,9 @@ std::unique_ptr<Stationlocal> StationDao::selectById(QSqlDatabase& db, Station s
         auto stationObj = std::make_unique<Stationlocal>(stationId, x, y);
         stationObj->set_online(isOnline);
 
-        if (!badSlotsStr.isEmpty()){
-            QStringList slots=badSlotsStr.split(',', Qt::SkipEmptyParts);
-            for (const QString& s:slots) {
+        if (!badSlotsStr.isEmpty()) {
+            QStringList slotList = badSlotsStr.split(',', Qt::SkipEmptyParts);
+            for (const QString& s : slotList) {
                 stationObj->mark_unavailable(s.toInt());
             }
         }
@@ -89,10 +91,11 @@ std::unique_ptr<Stationlocal> StationDao::selectById(QSqlDatabase& db, Station s
         //填充雨具
         GearDao gearDao;
         auto gears = gearDao.selectByStation(db, stationId);
-        for (auto& gear:gears) {
-            if(gear){
-                int slot=gear->get_slot_id();
-                stationObj->add_gear(slot, std::move(gear));
+        for (size_t i = 0; i < gears.size(); ++i) {
+            auto& gear = gears[i];
+            if (gear) {
+                int slotIdx = gear->get_slot_id();
+                stationObj->add_gear(slotIdx, std::move(gear));
             }
         }
         return stationObj;
