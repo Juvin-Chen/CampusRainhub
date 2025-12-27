@@ -6,6 +6,12 @@ Stationlocal::Stationlocal(Station station, double posX, double posY):station(st
 }
 
 
+//判断某个槽位是否有雨具（不管是否可用）
+bool Stationlocal::has_gear(int index) const{
+    if(index<1 || index>Station_capacity) return false;
+    return inventory[index] != nullptr;
+}
+
 //判断某个槽位的雨具是否可借（必须存在且状态为Available且不在故障名单中）
 bool Stationlocal::is_gear_available(int index) const{
     if(index<1 || index>Station_capacity) return false;
@@ -13,6 +19,12 @@ bool Stationlocal::is_gear_available(int index) const{
     if(!inventory[index]->is_available()) return false; 
     if(unavailable_gears.contains(index)) return false; 
     return true;
+}
+
+//判断某个槽位是否故障
+bool Stationlocal::is_slot_broken(int index) const{
+    if(index<1 || index>Station_capacity) return false;
+    return unavailable_gears.contains(index);
 }
 
 

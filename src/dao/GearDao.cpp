@@ -88,14 +88,27 @@ bool GearDao::deleteById(QSqlDatabase& db, const QString& id){
 }
 
 //update_status_and_location
+//当station=Station::Unknown 时，station_id 设为 NULL（表示雨具被借走，不在任何站点）
 bool GearDao::updateStatusAndLocation(QSqlDatabase& db, const QString& id, GearStatus status, Station station, int slot_id){
     QSqlQuery query(db);
-    query.prepare(QStringLiteral("UPDATE raingear SET status = ?, station_id = ?, slot_id = ? WHERE gear_id = ?"));
-    query.addBindValue(static_cast<int>(status));
     
-    query.addBindValue(static_cast<int>(station)); 
-    query.addBindValue(slot_id);
-    query.addBindValue(id);
+    if (station == Station::Unknown) {
+        // 借出状态：station_id 和 slot_id 设为 NULL
+        query.prepare(QStringLiteral("UPDATE raingear SET status = ?, station_id = NULL, slot_id = NULL WHERE gear_id = ?"));
+        query.addBindValue(static_cast<int>(status));
+        query.addBindValue(id);
+    } else {
+        // 归还状态：正常设置 station_id 和 slot_id
+        query.prepare(QStringLiteral("UPDATE raingear SET status = ?, station_id = ?, slot_id = ? WHERE gear_id = ?"));
+        query.addBindValue(static_cast<int>(status));
+        query.addBindValue(static_cast<int>(station)); 
+        query.addBindValue(slot_id);
+        query.addBindValue(id);
+    }
     
-    return query.exec();
+    if (!query.exec()) {
+        qCritical() << "[GearDao::updateStatusAndLocation] Error:" << query.lastError().text();
+        return false;
+    }
+    return true;
 }

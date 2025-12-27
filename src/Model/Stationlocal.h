@@ -32,8 +32,12 @@ public:
     //库存总数量与可用数量
     int get_inventory_count() const;
     int get_available_count() const;
-    //判断某个槽位的雨具是否可用
+    //判断某个槽位是否有雨具（不管是否可用）
+    bool has_gear(int index) const;
+    //判断某个槽位的雨具是否可借（存在且状态为Available）
     bool is_gear_available(int index) const;
+    //判断某个槽位是否故障
+    bool is_slot_broken(int index) const;
 
 
     //管理员权限，可以添加、取出、标记雨具
