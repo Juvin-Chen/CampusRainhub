@@ -30,13 +30,14 @@ std::unique_ptr<RainGear> GearDao::selectById(QSqlDatabase& db, const QString& i
 }
 
 //select_by_station
-QVector<std::unique_ptr<RainGear>> GearDao::selectByStation(QSqlDatabase& db, Station station){
+std::vector<std::unique_ptr<RainGear>> GearDao::selectByStation(QSqlDatabase& db, Station station){
     QSqlQuery query(db);
     query.prepare(QStringLiteral("SELECT * FROM raingear WHERE station_id = ?"));
     query.addBindValue(static_cast<int>(station));
-    if(!query.exec()){ return QVector<std::unique_ptr<RainGear>>(); }
+    if(!query.exec()){ return std::vector<std::unique_ptr<RainGear>>(); }
 
-    QVector<std::unique_ptr<RainGear>> gears;
+    std::vector<std::unique_ptr<RainGear>> gears;
+    gears.reserve(16);
     while(query.next()){
         QString gearId = query.value("gear_id").toString();
         GearType type = static_cast<GearType>(query.value("type_id").toInt());
