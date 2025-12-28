@@ -1,18 +1,24 @@
--- 插入初始测试数据
--- 插入测试用户（首次登录时password为NULL，is_active为0，需要激活设置密码）
-INSERT INTO users (user_id, password, real_name, role, credit, avatar_id, is_active) VALUES
-('202483290399', NULL, 'cqw', 0, 100.00, 1, 0),
-('202383290032', NULL, 'wy', 0, 50.00, 1, 0),
-('202483290447', NULL, 'ljy', 0, 30.00, 1, 0),
-('202511420317', NULL, 'cka', 0, 100.00, 1, 0),
-('T001', NULL, 'teacher1', 1, 200.00, 2, 0),
-('T002', NULL, 'teacher2', 1, 200.00, 2, 0),
-('admin', '123456', 'admin', 9, 9999.00, 3, 1)
-ON DUPLICATE KEY UPDATE user_id=user_id;
+-- rainhub 测试数据插入脚本
+-- 本文件只插入用户和站点数据，雨具数据请运行data_insert2.0.sql
 
--- 插入站点数据（根据GlobalEnum.hpp中的Station枚举）
--- unavailable_slots字段：空字符串表示无故障槽位，示例"1,5"表示第1和第5号槽位故障
-INSERT INTO station (name, pos_x, pos_y, status, unavailable_slots) VALUES
+use rainhub_db;
+
+-- 插入测试用户
+-- 首次登录时 password 为 null, is_active 为 0, 需要激活设置密码
+-- role: 0=学生, 1=教职工, 9=管理员
+insert into users (user_id, password, real_name, role, credit, is_active) values
+('202483290399', null, 'cqw', 0, 100.00, 0),
+('202383290032', null, 'wy', 0, 50.00, 0),
+('202483290447', null, 'ljy', 0, 30.00, 0),
+('202511420317', null, 'cka', 0, 100.00, 0),
+('T001', null, 'teacher1', 1, 200.00, 0),
+('T002', null, 'teacher2', 1, 200.00, 0),
+('admin', '123456', 'admin', 9, 9999.00, 1)
+on duplicate key update user_id=user_id;
+
+-- 插入站点数据
+-- station_id 自增，对应 GlobalEnum.hpp 中的Station枚举
+insert into station (name, pos_x, pos_y, status, unavailable_slots) values
 ('文德楼', 0.20, 0.40, 1, ''),
 ('明德楼', 0.75, 0.20, 1, ''),
 ('图书馆', 0.15, 0.15, 1, ''),
@@ -27,13 +33,8 @@ INSERT INTO station (name, pos_x, pos_y, status, unavailable_slots) VALUES
 ('中苑宿舍楼6', 0.85, 0.75, 1, ''),
 ('体育馆', 0.65, 0.55, 1, ''),
 ('行政楼', 0.80, 0.40, 1, '')
-ON DUPLICATE KEY UPDATE name=name;
+on duplicate key update name=name;
 
--- 雨具数据全部迁移到 data_insert2.0.sql，避免像之前一样重复插入...
--- 本脚本仅保留用户和站点数据
-
-SELECT 'Data initialization completed successfully!' AS message;
-SELECT COUNT(*) AS user_count FROM users;
-SELECT COUNT(*) AS station_count FROM station;
-SELECT COUNT(*) AS gear_count FROM raingear;
-
+select 'data_insert.sql executed successfully!' as message;
+select concat('users: ', count(*)) as count from users;
+select concat('stations: ', count(*)) as count from station;

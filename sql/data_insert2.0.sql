@@ -1,147 +1,131 @@
--- 雨具数据初始化脚本2.0，对前面初始化的补充，为所有站点放满雨具（12个槽位），随机几个站点缺少几把伞
-
+-- 雨具数据完整版
+-- 为所有14个站点填充雨具数据，部分站点故意缺少几把用于测试
 
 use rainhub_db;
 
--- 清空现有雨具数据（如果不想清空可以注释掉）
--- DELETE FROM raingear;
+-- 槽位分配规则: 1-4普通塑料伞, 5-8高质量抗风伞, 9-10遮阳伞, 11-12雨衣
+-- type_id: 1=普通塑料伞, 2=高质量抗风伞, 3=遮阳伞, 4=雨衣
+-- status: 1=Available可用
 
--- 为每个站点生成12个雨具（槽位1-12）
--- 雨具类型分布：1-4号槽位：普通塑料伞(1)，5-8号槽位：高质量抗风伞(2)，9-10号槽位：遮阳伞(3)，11-12号槽位：雨衣(4)
-
--- 站点1（文德楼）- 完整12把
-INSERT INTO raingear (gear_id, type_id, station_id, slot_id, status) VALUES
+-- 站点1 文德楼 - 完整12把
+insert into raingear (gear_id, type_id, station_id, slot_id, status) values
 ('G001_001', 1, 1, 1, 1), ('G001_002', 1, 1, 2, 1), ('G001_003', 1, 1, 3, 1), ('G001_004', 1, 1, 4, 1),
 ('G001_005', 2, 1, 5, 1), ('G001_006', 2, 1, 6, 1), ('G001_007', 2, 1, 7, 1), ('G001_008', 2, 1, 8, 1),
 ('G001_009', 3, 1, 9, 1), ('G001_010', 3, 1, 10, 1),
 ('G001_011', 4, 1, 11, 1), ('G001_012', 4, 1, 12, 1)
-ON DUPLICATE KEY UPDATE gear_id=gear_id;
+on duplicate key update gear_id=gear_id;
 
--- 站点2（明德楼）- 完整12把
-INSERT INTO raingear (gear_id, type_id, station_id, slot_id, status) VALUES
+-- 站点2 明德楼 - 完整12把
+insert into raingear (gear_id, type_id, station_id, slot_id, status) values
 ('G002_001', 1, 2, 1, 1), ('G002_002', 1, 2, 2, 1), ('G002_003', 1, 2, 3, 1), ('G002_004', 1, 2, 4, 1),
 ('G002_005', 2, 2, 5, 1), ('G002_006', 2, 2, 6, 1), ('G002_007', 2, 2, 7, 1), ('G002_008', 2, 2, 8, 1),
 ('G002_009', 3, 2, 9, 1), ('G002_010', 3, 2, 10, 1),
 ('G002_011', 4, 2, 11, 1), ('G002_012', 4, 2, 12, 1)
-ON DUPLICATE KEY UPDATE gear_id=gear_id;
+on duplicate key update gear_id=gear_id;
 
--- 站点3（图书馆）- 缺少2把（槽位3和8为空）
-INSERT INTO raingear (gear_id, type_id, station_id, slot_id, status) VALUES
-('G003_001', 1, 3, 1, 1), ('G003_002', 1, 3, 2, 1), 
--- 槽位3为空
-('G003_004', 1, 3, 4, 1),
-('G003_005', 2, 3, 5, 1), ('G003_006', 2, 3, 6, 1), ('G003_007', 2, 3, 7, 1), 
--- 槽位8为空
+-- 站点3 图书馆 - 缺少2把（槽位3和8为空）
+insert into raingear (gear_id, type_id, station_id, slot_id, status) values
+('G003_001', 1, 3, 1, 1), ('G003_002', 1, 3, 2, 1), ('G003_004', 1, 3, 4, 1),
+('G003_005', 2, 3, 5, 1), ('G003_006', 2, 3, 6, 1), ('G003_007', 2, 3, 7, 1),
 ('G003_009', 3, 3, 9, 1), ('G003_010', 3, 3, 10, 1),
 ('G003_011', 4, 3, 11, 1), ('G003_012', 4, 3, 12, 1)
-ON DUPLICATE KEY UPDATE gear_id=gear_id;
+on duplicate key update gear_id=gear_id;
 
--- 站点4（长望楼）- 完整12把
-INSERT INTO raingear (gear_id, type_id, station_id, slot_id, status) VALUES
+-- 站点4 长望楼 - 完整12把
+insert into raingear (gear_id, type_id, station_id, slot_id, status) values
 ('G004_001', 1, 4, 1, 1), ('G004_002', 1, 4, 2, 1), ('G004_003', 1, 4, 3, 1), ('G004_004', 1, 4, 4, 1),
 ('G004_005', 2, 4, 5, 1), ('G004_006', 2, 4, 6, 1), ('G004_007', 2, 4, 7, 1), ('G004_008', 2, 4, 8, 1),
 ('G004_009', 3, 4, 9, 1), ('G004_010', 3, 4, 10, 1),
 ('G004_011', 4, 4, 11, 1), ('G004_012', 4, 4, 12, 1)
-ON DUPLICATE KEY UPDATE gear_id=gear_id;
+on duplicate key update gear_id=gear_id;
 
--- 站点5（藕舫楼）- 缺少3把（槽位2、7、11为空）
-INSERT INTO raingear (gear_id, type_id, station_id, slot_id, status) VALUES
-('G005_001', 1, 5, 1, 1), 
--- 槽位2为空
-('G005_003', 1, 5, 3, 1), ('G005_004', 1, 5, 4, 1),
-('G005_005', 2, 5, 5, 1), ('G005_006', 2, 5, 6, 1), 
--- 槽位7为空
-('G005_008', 2, 5, 8, 1),
+-- 站点5 藕舫楼 - 缺少3把（槽位2、7、11为空）
+insert into raingear (gear_id, type_id, station_id, slot_id, status) values
+('G005_001', 1, 5, 1, 1), ('G005_003', 1, 5, 3, 1), ('G005_004', 1, 5, 4, 1),
+('G005_005', 2, 5, 5, 1), ('G005_006', 2, 5, 6, 1), ('G005_008', 2, 5, 8, 1),
 ('G005_009', 3, 5, 9, 1), ('G005_010', 3, 5, 10, 1),
--- 槽位11为空
 ('G005_012', 4, 5, 12, 1)
-ON DUPLICATE KEY UPDATE gear_id=gear_id;
+on duplicate key update gear_id=gear_id;
 
--- 站点6（北辰楼）- 完整12把
-INSERT INTO raingear (gear_id, type_id, station_id, slot_id, status) VALUES
+-- 站点6 北辰楼 - 完整12把
+insert into raingear (gear_id, type_id, station_id, slot_id, status) values
 ('G006_001', 1, 6, 1, 1), ('G006_002', 1, 6, 2, 1), ('G006_003', 1, 6, 3, 1), ('G006_004', 1, 6, 4, 1),
 ('G006_005', 2, 6, 5, 1), ('G006_006', 2, 6, 6, 1), ('G006_007', 2, 6, 7, 1), ('G006_008', 2, 6, 8, 1),
 ('G006_009', 3, 6, 9, 1), ('G006_010', 3, 6, 10, 1),
 ('G006_011', 4, 6, 11, 1), ('G006_012', 4, 6, 12, 1)
-ON DUPLICATE KEY UPDATE gear_id=gear_id;
+on duplicate key update gear_id=gear_id;
 
--- 站点7（西苑宿舍楼1）- 完整12把
-INSERT INTO raingear (gear_id, type_id, station_id, slot_id, status) VALUES
+-- 站点7 西苑宿舍楼1 - 完整12把
+insert into raingear (gear_id, type_id, station_id, slot_id, status) values
 ('G007_001', 1, 7, 1, 1), ('G007_002', 1, 7, 2, 1), ('G007_003', 1, 7, 3, 1), ('G007_004', 1, 7, 4, 1),
 ('G007_005', 2, 7, 5, 1), ('G007_006', 2, 7, 6, 1), ('G007_007', 2, 7, 7, 1), ('G007_008', 2, 7, 8, 1),
 ('G007_009', 3, 7, 9, 1), ('G007_010', 3, 7, 10, 1),
 ('G007_011', 4, 7, 11, 1), ('G007_012', 4, 7, 12, 1)
-ON DUPLICATE KEY UPDATE gear_id=gear_id;
+on duplicate key update gear_id=gear_id;
 
--- 站点8（西苑宿舍楼2）- 缺少1把（槽位6为空）
-INSERT INTO raingear (gear_id, type_id, station_id, slot_id, status) VALUES
+-- 站点8 西苑宿舍楼2 - 缺少1把（槽位6为空）
+insert into raingear (gear_id, type_id, station_id, slot_id, status) values
 ('G008_001', 1, 8, 1, 1), ('G008_002', 1, 8, 2, 1), ('G008_003', 1, 8, 3, 1), ('G008_004', 1, 8, 4, 1),
-('G008_005', 2, 8, 5, 1), 
--- 槽位6为空
-('G008_007', 2, 8, 7, 1), ('G008_008', 2, 8, 8, 1),
+('G008_005', 2, 8, 5, 1), ('G008_007', 2, 8, 7, 1), ('G008_008', 2, 8, 8, 1),
 ('G008_009', 3, 8, 9, 1), ('G008_010', 3, 8, 10, 1),
 ('G008_011', 4, 8, 11, 1), ('G008_012', 4, 8, 12, 1)
-ON DUPLICATE KEY UPDATE gear_id=gear_id;
+on duplicate key update gear_id=gear_id;
 
--- 站点9（西苑宿舍楼3）- 完整12把
-INSERT INTO raingear (gear_id, type_id, station_id, slot_id, status) VALUES
+-- 站点9 西苑宿舍楼3 - 完整12把
+insert into raingear (gear_id, type_id, station_id, slot_id, status) values
 ('G009_001', 1, 9, 1, 1), ('G009_002', 1, 9, 2, 1), ('G009_003', 1, 9, 3, 1), ('G009_004', 1, 9, 4, 1),
 ('G009_005', 2, 9, 5, 1), ('G009_006', 2, 9, 6, 1), ('G009_007', 2, 9, 7, 1), ('G009_008', 2, 9, 8, 1),
 ('G009_009', 3, 9, 9, 1), ('G009_010', 3, 9, 10, 1),
 ('G009_011', 4, 9, 11, 1), ('G009_012', 4, 9, 12, 1)
-ON DUPLICATE KEY UPDATE gear_id=gear_id;
+on duplicate key update gear_id=gear_id;
 
--- 站点10（中苑宿舍楼4）- 完整12把
-INSERT INTO raingear (gear_id, type_id, station_id, slot_id, status) VALUES
+-- 站点10 中苑宿舍楼4 - 完整12把
+insert into raingear (gear_id, type_id, station_id, slot_id, status) values
 ('G010_001', 1, 10, 1, 1), ('G010_002', 1, 10, 2, 1), ('G010_003', 1, 10, 3, 1), ('G010_004', 1, 10, 4, 1),
 ('G010_005', 2, 10, 5, 1), ('G010_006', 2, 10, 6, 1), ('G010_007', 2, 10, 7, 1), ('G010_008', 2, 10, 8, 1),
 ('G010_009', 3, 10, 9, 1), ('G010_010', 3, 10, 10, 1),
 ('G010_011', 4, 10, 11, 1), ('G010_012', 4, 10, 12, 1)
-ON DUPLICATE KEY UPDATE gear_id=gear_id;
+on duplicate key update gear_id=gear_id;
 
--- 站点11（中苑宿舍楼5）- 完整12把
-INSERT INTO raingear (gear_id, type_id, station_id, slot_id, status) VALUES
+-- 站点11 中苑宿舍楼5 - 完整12把
+insert into raingear (gear_id, type_id, station_id, slot_id, status) values
 ('G011_001', 1, 11, 1, 1), ('G011_002', 1, 11, 2, 1), ('G011_003', 1, 11, 3, 1), ('G011_004', 1, 11, 4, 1),
 ('G011_005', 2, 11, 5, 1), ('G011_006', 2, 11, 6, 1), ('G011_007', 2, 11, 7, 1), ('G011_008', 2, 11, 8, 1),
 ('G011_009', 3, 11, 9, 1), ('G011_010', 3, 11, 10, 1),
 ('G011_011', 4, 11, 11, 1), ('G011_012', 4, 11, 12, 1)
-ON DUPLICATE KEY UPDATE gear_id=gear_id;
+on duplicate key update gear_id=gear_id;
 
--- 站点12（中苑宿舍楼6）- 缺少2把（槽位4和9为空）
-INSERT INTO raingear (gear_id, type_id, station_id, slot_id, status) VALUES
-('G012_001', 1, 12, 1, 1), ('G012_002', 1, 12, 2, 1), ('G012_003', 1, 12, 3, 1), 
--- 槽位4为空
+-- 站点12 中苑宿舍楼6 - 缺少2把（槽位4和9为空）
+insert into raingear (gear_id, type_id, station_id, slot_id, status) values
+('G012_001', 1, 12, 1, 1), ('G012_002', 1, 12, 2, 1), ('G012_003', 1, 12, 3, 1),
 ('G012_005', 2, 12, 5, 1), ('G012_006', 2, 12, 6, 1), ('G012_007', 2, 12, 7, 1), ('G012_008', 2, 12, 8, 1),
--- 槽位9为空
 ('G012_010', 3, 12, 10, 1),
 ('G012_011', 4, 12, 11, 1), ('G012_012', 4, 12, 12, 1)
-ON DUPLICATE KEY UPDATE gear_id=gear_id;
+on duplicate key update gear_id=gear_id;
 
--- 站点13（体育馆）- 完整12把
-INSERT INTO raingear (gear_id, type_id, station_id, slot_id, status) VALUES
+-- 站点13 体育馆 - 完整12把
+insert into raingear (gear_id, type_id, station_id, slot_id, status) values
 ('G013_001', 1, 13, 1, 1), ('G013_002', 1, 13, 2, 1), ('G013_003', 1, 13, 3, 1), ('G013_004', 1, 13, 4, 1),
 ('G013_005', 2, 13, 5, 1), ('G013_006', 2, 13, 6, 1), ('G013_007', 2, 13, 7, 1), ('G013_008', 2, 13, 8, 1),
 ('G013_009', 3, 13, 9, 1), ('G013_010', 3, 13, 10, 1),
 ('G013_011', 4, 13, 11, 1), ('G013_012', 4, 13, 12, 1)
-ON DUPLICATE KEY UPDATE gear_id=gear_id;
+on duplicate key update gear_id=gear_id;
 
--- 站点14（行政楼）- 完整12把
-INSERT INTO raingear (gear_id, type_id, station_id, slot_id, status) VALUES
+-- 站点14 行政楼 - 完整12把
+insert into raingear (gear_id, type_id, station_id, slot_id, status) values
 ('G014_001', 1, 14, 1, 1), ('G014_002', 1, 14, 2, 1), ('G014_003', 1, 14, 3, 1), ('G014_004', 1, 14, 4, 1),
 ('G014_005', 2, 14, 5, 1), ('G014_006', 2, 14, 6, 1), ('G014_007', 2, 14, 7, 1), ('G014_008', 2, 14, 8, 1),
 ('G014_009', 3, 14, 9, 1), ('G014_010', 3, 14, 10, 1),
 ('G014_011', 4, 14, 11, 1), ('G014_012', 4, 14, 12, 1)
-ON DUPLICATE KEY UPDATE gear_id=gear_id;
+on duplicate key update gear_id=gear_id;
 
--- 统计信息
-SELECT 'Rain gear initialization completed!' AS message;
-SELECT 
-    station_id,
-    (SELECT name FROM station WHERE station_id = s.station_id) AS station_name,
-    COUNT(*) AS total_gears,
-    COUNT(CASE WHEN status = 1 THEN 1 END) AS available_gears
-FROM raingear s
-WHERE station_id IS NOT NULL
-GROUP BY station_id
-ORDER BY station_id;
-
+-- 统计
+select 'data_insert2.0.sql executed successfully!' as message;
+select 
+    s.station_id,
+    s.name as station_name,
+    count(r.gear_id) as total_gears
+from station s
+left join raingear r on s.station_id = r.station_id
+group by s.station_id, s.name
+order by s.station_id;
