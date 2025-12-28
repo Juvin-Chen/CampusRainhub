@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/map">
-        <file>map_config.json</file>
-    </qresource>
-</RCC>
-
