@@ -5,6 +5,7 @@
 #include<QSqlError>
 #include<QDebug>
 #include<QVariant>
+#include<QStringList>
 
 //select_by_id
 std::unique_ptr<RainGear> GearDao::selectById(QSqlDatabase& db, const QString& id){
@@ -111,4 +112,48 @@ bool GearDao::updateStatusAndLocation(QSqlDatabase& db, const QString& id, GearS
         return false;
     }
     return true;
+}
+
+//仅更新状态
+bool GearDao::updateStatus(QSqlDatabase& db, const QString& id, int status) {
+    QSqlQuery query(db);
+    query.prepare(QStringLiteral("UPDATE raingear SET status = ? WHERE gear_id = ?"));
+    query.addBindValue(status);
+    query.addBindValue(id);
+    return query.exec();
+}
+
+
+
+//管理员后台Part
+//获取雨具DTO列表
+QVector<GearInfoDTO> GearDao::selectAllDTO(QSqlDatabase& db, int stationId, int slotId) {
+    QVector<GearInfoDTO> result;
+    QString sql = "SELECT gear_id, type_id, station_id, slot_id, status FROM raingear";
+    QStringList conditions;
+    if (stationId > 0) { conditions.append("station_id = :station_id"); }
+    if (slotId > 0) { conditions.append("slot_id = :slot_id"); }
+    if (!conditions.isEmpty()) { sql += " WHERE " + conditions.join(" AND "); }
+    sql += " ORDER BY gear_id";
+    
+    QSqlQuery query(db);
+    query.prepare(sql);
+    if (stationId > 0) { query.bindValue(":station_id", stationId); }
+    if (slotId > 0) { query.bindValue(":slot_id", slotId); }
+    
+    if (!query.exec()) { return result; }
+    while (query.next()) {
+        result.append(GearInfoDTO{query.value("gear_id").toString(),query.value("type_id").toInt(),query.value("station_id").toInt(),query.value("slot_id").toInt(),query.value("status").toInt()
+        });
+    }
+    return result;
+}
+
+//按状态统计数量
+int GearDao::countByStatus(QSqlDatabase& db, int status) {
+    QSqlQuery query(db);
+    query.prepare(QStringLiteral("SELECT COUNT(*) FROM raingear WHERE status = ?"));
+    query.addBindValue(status);
+    if (query.exec() && query.next()) { return query.value(0).toInt(); }
+    return 0;
 }
