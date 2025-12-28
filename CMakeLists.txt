@@ -45,7 +45,9 @@ if(NOT DEFINED MYSQL_ROOT)
 endif()
 
 set(MYSQL_LIB_DIR "${MYSQL_ROOT}/lib")
-set(DLL_DIR "${CMAKE_SOURCE_DIR}/dll")
+set(THIRD_PARTY_DIR "${CMAKE_SOURCE_DIR}/third_party")
+set(MYSQL_DLL_DIR "${THIRD_PARTY_DIR}/mysql/lib")
+set(MYSQL_SQLDRIVERS_DIR "${THIRD_PARTY_DIR}/mysql/sqldrivers")
 
 # 包含目录
 include_directories(
@@ -201,9 +203,9 @@ if(WIN32)
     endif()
 
     set(MYSQL_DLLS
-        "${DLL_DIR}/libmysql.dll"
-        "${DLL_DIR}/libssl-3-x64.dll"
-        "${DLL_DIR}/libcrypto-3-x64.dll"
+        "${MYSQL_DLL_DIR}/libmysql.dll"
+        "${MYSQL_DLL_DIR}/libssl-3-x64.dll"
+        "${MYSQL_DLL_DIR}/libcrypto-3-x64.dll"
     )
     
     set(QT_DLLS
@@ -244,7 +246,7 @@ if(WIN32)
         endif()
 
         # 复制MySQL驱动插件
-        set(MYSQL_DRIVER_DLL "${DLL_DIR}/sqldrivers/qsqlmysql.dll")
+        set(MYSQL_DRIVER_DLL "${MYSQL_SQLDRIVERS_DIR}/qsqlmysql.dll")
         if(EXISTS "${MYSQL_DRIVER_DLL}")
             add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${TARGET_NAME}>/sqldrivers
@@ -287,6 +289,6 @@ message(STATUS "RainHub Build Configuration")
 message(STATUS "Qt Version: ${QT_VERSION_MAJOR}")
 message(STATUS "Qt Path: ${CMAKE_PREFIX_PATH}")
 message(STATUS "MySQL Root: ${MYSQL_ROOT}")
-message(STATUS "DLL Directory: ${DLL_DIR}")
+message(STATUS "Third Party: ${THIRD_PARTY_DIR}")
 message(STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "Targets: ${PROJECT_NAME}, ${PROJECT_NAME}_Admin")

@@ -30,9 +30,9 @@ qrc_*.cpp
 *.ilk
 *.exp
 
-# 但保留 dll 文件夹中的运行时依赖
-!dll/
-!dll/**
+# 但保留 third_party 文件夹中的运行时依赖
+!third_party/
+!third_party/**
 
 # CMake 缓存
 CMakeCache.txt
