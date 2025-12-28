@@ -15,3 +15,10 @@ std::unique_ptr<Stationlocal> StationService::getStationDetail(Station stationId
     if (!db.isOpen()) return nullptr;
     return stationDao.selectById(db, stationId);
 }
+
+//获取各站点的可用库存数量
+QMap<int, int> StationService::getStationInventoryCounts() {
+    auto db = ConnectionPool::getThreadLocalConnection();
+    if (!db.isOpen()) return {};
+    return stationDao.selectStationInventoryCounts(db);
+}
