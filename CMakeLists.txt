@@ -52,8 +52,8 @@ set(MYSQL_SQLDRIVERS_DIR "${THIRD_PARTY_DIR}/mysql/sqldrivers")
 # 包含目录
 include_directories(
     ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/src/client
-    ${CMAKE_SOURCE_DIR}/src/admin
+    ${CMAKE_SOURCE_DIR}/src/client_ui
+    ${CMAKE_SOURCE_DIR}/src/admin_ui
     ${CMAKE_SOURCE_DIR}/src/Model
     ${CMAKE_SOURCE_DIR}/src/control
     ${CMAKE_SOURCE_DIR}/src/dao
@@ -77,12 +77,20 @@ set(DAO_SOURCES
     src/dao/RecordDao.cpp
 )
 
-# 共享的 Control/Service 层
-set(SERVICE_SOURCES
+# 共享的 Control/Service 层（客户端）
+set(CLIENT_SERVICE_SOURCES
     src/control/AuthService.cpp
     src/control/BorrowService.cpp
     src/control/StationService.cpp
-    src/control/AdminService.cpp
+)
+
+# 管理员后台 Service 层
+set(ADMIN_SERVICE_SOURCES
+    src/control/Admin_AuthService.cpp
+    src/control/Admin_StationService.cpp
+    src/control/Admin_GearService.cpp
+    src/control/Admin_UserService.cpp
+    src/control/Admin_OrderService.cpp
 )
 
 # 共享的 Utils 层
@@ -92,41 +100,41 @@ set(UTILS_SOURCES
 
 # 客户端 UI 层
 set(CLIENT_UI_SOURCES
-    src/client/main.cpp
-    src/client/MainWindow.cpp
-    src/client/components/SlotItem.cpp
-    src/client/pages/WelcomePage.cpp
-    src/client/pages/AuthPages.cpp
-    src/client/pages/DashboardPage.cpp
-    src/client/pages/BorrowPage.cpp
-    src/client/pages/MapPage.cpp
-    src/client/pages/ProfilePage.cpp
-    src/client/pages/InstructionPage.cpp
+    src/client_ui/main.cpp
+    src/client_ui/MainWindow.cpp
+    src/client_ui/components/SlotItem.cpp
+    src/client_ui/pages/WelcomePage.cpp
+    src/client_ui/pages/AuthPages.cpp
+    src/client_ui/pages/DashboardPage.cpp
+    src/client_ui/pages/BorrowPage.cpp
+    src/client_ui/pages/MapPage.cpp
+    src/client_ui/pages/ProfilePage.cpp
+    src/client_ui/pages/InstructionPage.cpp
 )
 
 # 客户端头文件
 set(CLIENT_HEADERS
-    src/client/MainWindow.h
-    src/client/assets/Styles.h
-    src/client/components/SlotItem.h
-    src/client/pages/WelcomePage.h
-    src/client/pages/AuthPages.h
-    src/client/pages/DashboardPage.h
-    src/client/pages/BorrowPage.h
-    src/client/pages/MapPage.h
-    src/client/pages/ProfilePage.h
-    src/client/pages/InstructionPage.h
+    src/client_ui/MainWindow.h
+    src/client_ui/assets/Styles.h
+    src/client_ui/components/SlotItem.h
+    src/client_ui/pages/WelcomePage.h
+    src/client_ui/pages/AuthPages.h
+    src/client_ui/pages/DashboardPage.h
+    src/client_ui/pages/BorrowPage.h
+    src/client_ui/pages/MapPage.h
+    src/client_ui/pages/ProfilePage.h
+    src/client_ui/pages/InstructionPage.h
 )
 
 # 管理员后台 UI 层
 set(ADMIN_UI_SOURCES
-    src/admin/main.cpp
-    src/admin/MainWindow.cpp
+    src/admin_ui/main.cpp
+    src/admin_ui/MainWindow.cpp
 )
 
 # 管理员后台头文件
 set(ADMIN_HEADERS
-    src/admin/MainWindow.h
+    src/admin_ui/MainWindow.h
 )
 
 # 资源文件（统一放在 assets 目录）
@@ -141,7 +149,7 @@ add_executable(${PROJECT_NAME}
     ${CLIENT_UI_SOURCES}
     ${MODEL_SOURCES}
     ${DAO_SOURCES}
-    ${SERVICE_SOURCES}
+    ${CLIENT_SERVICE_SOURCES}
     ${UTILS_SOURCES}
     ${CLIENT_HEADERS}
     ${RESOURCES}
@@ -152,7 +160,7 @@ add_executable(${PROJECT_NAME}_Admin
     ${ADMIN_UI_SOURCES}
     ${MODEL_SOURCES}
     ${DAO_SOURCES}
-    ${SERVICE_SOURCES}
+    ${ADMIN_SERVICE_SOURCES}
     ${UTILS_SOURCES}
     ${ADMIN_HEADERS}
     ${RESOURCES}

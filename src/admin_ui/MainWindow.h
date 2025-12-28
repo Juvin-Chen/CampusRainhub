@@ -15,8 +15,11 @@ class QLineEdit;
 class QComboBox;
 class QTableWidget;
 
-class AuthService;
-class AdminService;
+class Admin_AuthService;
+class Admin_StationService;
+class Admin_GearService;
+class Admin_UserService;
+class Admin_OrderService;
 class User;
 
 class AdminMainWindow : public QMainWindow {
@@ -57,8 +60,11 @@ private:
     QString getWeatherInfo() const;
 
     // 服务层
-    std::unique_ptr<AuthService> m_authService;
-    std::unique_ptr<AdminService> m_adminService;
+    std::unique_ptr<Admin_AuthService> m_authService;
+    std::unique_ptr<Admin_StationService> m_stationService;
+    std::unique_ptr<Admin_GearService> m_gearService;
+    std::unique_ptr<Admin_UserService> m_userService;
+    std::unique_ptr<Admin_OrderService> m_orderService;
     
     // 当前管理员
     std::shared_ptr<User> m_currentAdmin;

@@ -2,9 +2,12 @@
     管理员后台主窗口实现
 */
 #include "MainWindow.h"
-#include "../client/assets/Styles.h"
-#include "../control/AuthService.h"
-#include "../control/AdminService.h"
+#include "../client_ui/assets/Styles.h"
+#include "../control/Admin_AuthService.h"
+#include "../control/Admin_StationService.h"
+#include "../control/Admin_GearService.h"
+#include "../control/Admin_UserService.h"
+#include "../control/Admin_OrderService.h"
 #include "../Model/User.h"
 
 #include <QApplication>
@@ -29,8 +32,11 @@
 
 AdminMainWindow::AdminMainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , m_authService(std::make_unique<AuthService>())
-    , m_adminService(std::make_unique<AdminService>())
+    , m_authService(std::make_unique<Admin_AuthService>())
+    , m_stationService(std::make_unique<Admin_StationService>())
+    , m_gearService(std::make_unique<Admin_GearService>())
+    , m_userService(std::make_unique<Admin_UserService>())
+    , m_orderService(std::make_unique<Admin_OrderService>())
 {
     qApp->setStyleSheet(Styles::globalStyle());
     
@@ -128,7 +134,7 @@ QWidget* AdminMainWindow::createLoginPage()
             return;
         }
 
-        auto adminOpt = m_adminService->adminLogin(userId, password);
+        auto adminOpt = m_authService->adminLogin(userId, password);
         if (!adminOpt) {
             QMessageBox::warning(this, tr("登录失败"), tr("账号或密码错误，或该账号不是管理员"));
             return;
@@ -598,9 +604,9 @@ void AdminMainWindow::refreshDashboardData()
     }
     
     // 获取统计数据
-    double onlineRate = m_adminService->getOnlineRate();
-    int borrowedCount = m_adminService->getTotalBorrowedCount();
-    int brokenCount = m_adminService->getTotalBrokenCount();
+    double onlineRate = m_stationService->getOnlineRate();
+    int borrowedCount = m_gearService->getTotalBorrowedCount();
+    int brokenCount = m_gearService->getTotalBrokenCount();
     
     if (m_onlineDevicesLabel) {
         m_onlineDevicesLabel->setText(QString("%1%").arg(QString::number(onlineRate, 'f', 0)));
@@ -616,7 +622,7 @@ void AdminMainWindow::refreshDashboardData()
     if (m_stationTable) {
         m_stationTable->setRowCount(0);
         
-        auto stationStats = m_adminService->getStationStats();
+        auto stationStats = m_stationService->getStationStats();
         for (const auto& stats : stationStats) {
             int row = m_stationTable->rowCount();
             m_stationTable->insertRow(row);
@@ -652,19 +658,19 @@ void AdminMainWindow::refreshGearManageData()
     
     // 填充站点下拉框（只在第一次）
     if (m_gearStationCombo && m_gearStationCombo->count() == 1) {
-        auto stationStats = m_adminService->getStationStats();
+        auto stationStats = m_stationService->getStationStats();
         for (const auto& stats : stationStats) {
             m_gearStationCombo->addItem(stats.name, stats.stationId);
         }
     }
     
-    auto gears = m_adminService->getAllGears(selectedStationId, selectedSlotId);
+    auto gears = m_gearService->getAllGears(selectedStationId, selectedSlotId);
     
     QStringList typeNames = {tr("未知"), tr("普通塑料伞"), tr("高质量抗风伞"), tr("专用遮阳伞"), tr("雨衣")};
     QStringList statusNames = {tr("未知"), tr("可借"), tr("已借出"), tr("故障")};
     
     // 获取站点名称映射
-    auto stationStats = m_adminService->getStationStats();
+    auto stationStats = m_stationService->getStationStats();
     QMap<int, QString> stationNames;
     for (const auto& stats : stationStats) {
         stationNames[stats.stationId] = stats.name;
@@ -700,7 +706,7 @@ void AdminMainWindow::refreshGearManageData()
         btnModify->setStyleSheet(Styles::Buttons::secondary());
         btnModify->setCursor(Qt::PointingHandCursor);
         
-        connect(btnModify, &QPushButton::clicked, this, [this, gear]() {
+        connect(btnModify, &QPushButton::clicked, this, [this, gear = gear]() {
             QDialog dialog(this);
             dialog.setWindowTitle(tr("修改雨具状态"));
             dialog.setStyleSheet("QDialog { background-color: #ffffff; }");
@@ -734,7 +740,7 @@ void AdminMainWindow::refreshGearManageData()
             
             if (dialog.exec() == QDialog::Accepted) {
                 int newStatus = combo->currentData().toInt();
-                if (m_adminService->updateGearStatus(gear.gearId, newStatus)) {
+                if (m_gearService->updateGearStatus(gear.gearId, newStatus)) {
                     QMessageBox::information(this, tr("成功"), tr("雨具状态已更新"));
                     refreshGearManageData();
                 } else {
@@ -754,7 +760,7 @@ void AdminMainWindow::refreshUserManageData()
     m_userTable->setRowCount(0);
     
     QString searchText = m_userSearchInput ? m_userSearchInput->text().trimmed() : QString();
-    auto users = m_adminService->getAllUsers(searchText);
+    auto users = m_userService->getAllUsers(searchText);
     
     QStringList roleNames = {tr("学生"), tr("教职工"), tr(""), tr(""), tr(""), tr(""), tr(""), tr(""), tr(""), tr("管理员")};
     
@@ -780,7 +786,7 @@ void AdminMainWindow::refreshUserManageData()
         btnResetPwd->setStyleSheet(Styles::Buttons::secondary());
         btnResetPwd->setCursor(Qt::PointingHandCursor);
         
-        connect(btnResetPwd, &QPushButton::clicked, this, [this, user]() {
+        connect(btnResetPwd, &QPushButton::clicked, this, [this, user = user]() {
             QDialog dialog(this);
             dialog.setWindowTitle(tr("重置密码"));
             dialog.setStyleSheet("QDialog { background-color: #ffffff; }");
@@ -814,7 +820,7 @@ void AdminMainWindow::refreshUserManageData()
                     QMessageBox::warning(this, tr("提示"), tr("密码长度至少为6位"));
                     return;
                 }
-                if (m_adminService->resetUserPassword(user.get_id(), newPassword)) {
+                if (m_userService->resetUserPassword(user.get_id(), newPassword)) {
                     QMessageBox::information(this, tr("成功"), tr("密码已重置"));
                 } else {
                     QMessageBox::critical(this, tr("失败"), tr("重置失败，请重试"));
@@ -832,7 +838,7 @@ void AdminMainWindow::refreshOrderManageData()
     
     m_orderTable->setRowCount(0);
     
-    auto orders = m_adminService->getRecentOrders(100);
+    auto orders = m_orderService->getRecentOrders(100);
     
     for (const auto& order : orders) {
         int row = m_orderTable->rowCount();
