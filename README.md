@@ -1,148 +1,125 @@
 # ☔ Campus RainHub
 
-<div align="right">
-
 [English](README.md) | [中文](README.zh-CN.md)
-
-</div>
-
-> Campus Smart Rain Gear Sharing System | C++/Qt + MySQL
 
 > **"No more being trapped in buildings on rainy days."**
 
-## Project Background
+### 🟢 Introduction
 
-Every student has experienced this: you leave home in the morning with clear skies, but when class ends, it suddenly starts pouring. You're stuck in the building—either wait for the rain to stop or make a run for it. Neither option is great.
+**Campus RainHub** is an intelligent shared rain gear system designed for campus scenarios. It is an IoT solution developed with **C++17** and **Qt 6.9.3**, utilizing **MySQL 8.0** for underlying data storage.
 
-That's why this project exists.
+The project consists of two independent applications:
 
-The idea is simple: place smart terminals around campus where students can borrow and return umbrellas 24/7, just like shared power banks.
+1.  **User Self-Service Terminal (Client)**: Deployed at building entrances, supporting concurrent logins on multiple terminals for students to borrow and return gear independently.
+2.  **Comprehensive Management Dashboard (Admin)**: Used by operations staff for rain gear scheduling, station monitoring, and data statistics.
 
-## Project Structure
+The project aims to solve the pain point of sudden rain on campus by adopting a "shared economy" model similar to power bank rental stations, providing **24-hour unattended** rain gear services.
 
-```
+---
+
+### Features & Functionality
+
+The core logic involves placing intelligent terminal stations in high-traffic campus areas. Students interact with the system via RFID cards (simulating campus ID cards). Each station hardware is designed with **12 smart slots**, using algorithms to automatically assign return positions.
+
+#### User Terminal (Client)
+
+* **Multi-Type Gear Support**: Implements the **Factory Pattern** to manage various types of rain gear, including standard plastic umbrellas, windproof umbrellas, sunshades, and raincoats.
+* **Visual Map**: Renders a real-time campus map, dynamically displaying station locations and current inventory (available/empty slots).
+
+#### Management Dashboard (Admin)
+
+* **Global Monitoring**: Real-time monitoring of online status and inventory levels of all stations to assist in dispatching decisions.
+* **Lifecycle Management**: Supports full status tracking and modification for rain gear (e.g., available, damaged, lost).
+* **Data Statistics**: Visualizes order streams and user activity trends to generate operational reports.
+
+---
+
+### Architecture & Technical Implementation
+
+The project adopts a classic **Layered Architecture**, optimized deeply for performance and concurrency:
+
+* **UI Layer**: Built with **Qt Widgets**, featuring a modern dark-themed interface implemented via **QSS**.
+* **Service Layer**: Encapsulates core business logic (e.g., `AuthService`, `BorrowService`) and handles workflow control.
+* **DAO Layer**: Separates SQL operations from business logic using the **DAO Pattern**, ensuring the independence of data persistence.
+* **Utils Layer**:
+  * **Thread-Safe Database Management**: Implemented a `ConnectionPool` based on the **Thread-Local Storage (TLS)** mechanism. The system dynamically generates independent connection instances based on Thread IDs. The `getThreadLocalConnection` method ensures each thread possesses its own database context, perfectly resolving concurrency conflicts within the Qt SQL module in multi-threaded environments.
+  * **Hybrid Data Loading Strategy**: Designed a `MapConfigLoader`. Adopts a **"Static Configuration + Dynamic Data"** hybrid mode—static data like station coordinates and names are pre-loaded from local JSON resources (`:/map/map_config.json`) in milliseconds, while dynamic data (inventory levels) is fetched from the database in real-time. This strategy guarantees real-time accuracy while significantly reducing database I/O overhead and improving map rendering performance.
+
+---
+
+### 📂 Project Structure
+
+```text
 Rainhub/
-├── sql/                    # Database scripts
-│   ├── init_db.sql        # Initialize table structure
-│   └── data_insert.sql    # Test data
+├── sql/                    # Database Scripts
+│   ├── init_db.sql         # Schema creation script
+│   └── data_insert.sql     # Initial test data (stations, gear, test users)
 ├── src/
-│   ├── admin_ui/          # Admin dashboard UI
-│   ├── client_ui/         # Client UI
-│   │   └── assets/        # UI styles and resources
-│   ├── control/           # Business logic layer (Service)
-│   │   ├── AuthService.cpp
-│   │   ├── BorrowService.cpp
-│   │   └── Admin_*.cpp    # Admin-related services
-│   ├── dao/               # Data access layer
-│   │   ├── UserDao.cpp
-│   │   ├── GearDao.cpp
-│   │   └── StationDao.cpp
-│   ├── Model/             # Data models
-│   │   ├── User.cpp
-│   │   └── RainGear.cpp
-│   └── utils/             # Utility classes
-├── assets/                # Resource files (icons, map configs)
-├── third_party/           # Third-party libraries (MySQL DLL)
-└── CMakeLists.txt         # Build configuration
+│   ├── admin_ui/           # Admin UI Logic (Interactions & Slots)
+│   ├── client_ui/          # Client UI Logic (Custom Widgets & Animations)
+│   ├── control/            # Service Layer (Business Logic, Auth, Algo)
+│   ├── dao/                # Data Access Object Layer (SQL Encapsulation)
+│   ├── model/              # Data Entities (POJOs: User, RainGear, etc.)
+│   └── utils/              # Utilities (Thread-Local DB Pool, Map Loader)
+├── assets/                 # Static Resources (Icons, Map JSON, QSS)
+├── third_party/            # Dependencies (MySQL Connector/C++ DLLs)
+└── CMakeLists.txt          # CMake Build Script
 ```
 
-## Features
 
-### Client Application
 
-- **Borrow/Return Gear**: Use campus card to select station and slot for borrowing/returning rain gear
-- **Real-time Map**: View inventory status of all stations with real-time updates
-- **Account Management**: Support student/staff roles, balance top-up, view borrowing history
+### Run Guide
 
-### Admin Dashboard
+#### 1. Prerequisites
 
-- **Station Monitoring**: View online status and inventory of all stations
-- **Gear Management**: Add, delete gear, modify status (available/borrowed/faulty)
-- **User Management**: View user list and manage user information
-- **Order Statistics**: View recent borrowing records and analyze usage
+- **Compiler**: MinGW 11.2+ or MSVC 2019+ (Must support **C++17**)
+- **Framework**: Qt 6.x (Tested on **6.9.3**)
+- **Database**: MySQL 8.0+
+- **Build Tool**: CMake 3.16+
 
-## Tech Stack
+#### 2. Database Configuration
 
-- **C++ 17** - Main development language
-- **Qt 6.9.3** - GUI framework with QSS styling
-- **MySQL 8.0** - Database, connected via Qt SQL module
-- **CMake** - Build system
+1. Navigate to the `sql` directory and run the scripts using a DB tool (e.g., Navicat or MySQL Workbench):
 
-### Design Patterns
+   - First, run `init_db.sql` to create the `rainhub_db` database and tables.
+   - Then, run `data_insert.sql` to import default stations and test data.
 
-- **Factory Pattern**: Create different types of rain gear (umbrella, raincoat, etc.)
-- **DAO Pattern**: Separation of data access layer and business logic layer
-- **Singleton Pattern**: Database connection management
+2. Open `src/control/DatabaseManager.cpp` and update the connection details:
 
-## Quick Start
+   C++
 
-### Requirements
-
-- Qt 6.x (MinGW or MSVC)
-- MySQL 8.0
-- CMake 3.16+
-
-### Setup Steps
-
-1. **Create Database**
-
-   ```sql
-   CREATE DATABASE rainhub_db;
+   ```
+   db.setUserName("your_username"); // TODO: Replace with your MySQL username
+   db.setPassword("your_password"); // TODO: Replace with your MySQL password
    ```
 
-2. **Initialize Database**
+#### 3. Build & Compile
 
-   - Run `sql/init_db.sql` to create table structure
-   - Run `sql/data_insert.sql` to import test data
+This project uses **CMake** for cross-platform building. Ensure CMake is installed and the Qt environment variables are set.
 
-3. **Configure Database**
+Bash
 
-   Open `src/control/DatabaseManager.cpp` and modify database username and password:
+```
+# 1. Clone or download the project, then enter the root directory
+cd Rainhub
 
-   ```cpp
-   db.setUserName("your_mysql_username");
-   db.setPassword("your_mysql_password");
-   ```
+# 2. Create and enter the build directory (Out-of-source build recommended)
+mkdir build && cd build
 
-4. **Build and Run**
+# 3. Generate build files (Makefiles or VS Solution)
+cmake ..
 
-   ```powershell
-   # Navigate to project directory
-   cd C:\Users\hdcqW\Desktop\Rainhub
-   
-   # Enter build directory
-   cd build
-   
-   # Configure project (if CMakeLists.txt was modified)
-   cmake ..
-   
-   # Build
-   E:/Qt/Tools/mingw1310_64/bin/mingw32-make.exe
-   
-   # Run client
-   cd bin
-   .\RainHub.exe
-   
-   # Or run admin dashboard
-   .\RainHub_Admin.exe
-   ```
+# 4. Compile (Release mode)
+cmake --build . --config Release
+```
 
-   > If `mingw32-make` is added to system PATH, you can use `mingw32-make` directly instead of the full path
+#### 4. Run
 
-## Development Notes
+After compilation, the executables will be generated in `build/bin` (or `build/Release`):
 
-- Project uses layered architecture: UI Layer → Service Layer → DAO Layer → Database
-- Admin and user login are completely separated; admin accounts cannot log in to client app
-- UI styling uses QSS with deep blue gradient theme
-- Map data uses JSON configuration; station coordinates and descriptions are read from config file, inventory data is fetched from database in real-time
-
-## TODO
-
-- Customer service feature in client app
-- Push notifications (borrow/return reminders)
-- Server development
-- More statistical charts
+- **Client App**: Run `RainHub.exe`
+- **Admin App**: Run `RainHub_Admin.exe`
 
 ------
 
-If you find this project interesting, feel free to Star ⭐
+> If you find this project interesting, please **Star** ⭐
