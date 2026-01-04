@@ -3,122 +3,107 @@
 [English](README.md) | [中文](README.zh-CN.md)
 
 > **"No more being trapped in buildings on rainy days."**
->
-> **"下雨天，再也不用被困在教学楼了。"**
 
-### 项目简介
+### 🟢 Introduction
+**Campus RainHub** is an intelligent shared rain gear system designed for campus scenarios. It is an IoT solution developed with **C++17** and **Qt 6.9.3**, utilizing **MySQL 8.0** for underlying data storage.
 
-**Campus RainHub (校园智能雨具共享系统)** 是一套基于 **C++17** 和 **Qt 6.9.3** 开发的校园物联网解决方案，底层数据存储采用 **MySQL 8.0**。
+The project consists of two independent applications:
+1.  **User Self-Service Terminal (Client)**: Deployed at building entrances, supporting concurrent logins on multiple terminals for students to borrow and return gear independently.
+2.  **Comprehensive Management Dashboard (Admin)**: Used by operations staff for rain gear scheduling, station monitoring, and data statistics.
 
-本项目包含两个独立的应用端：
-
-1.  **用户自助终端 (Client)**：部署在教学楼门口，支持多终端并发登录，供学生自助借还。
-2.  **综合管理后台 (Admin)**：供运营人员进行雨具调度、站点监控和数据统计。
-
-项目旨在解决高校师生突遇降雨时的出行痛点，通过类似“共享充电宝”的模式，实现校园雨具的 **24小时无人值守** 借还服务。
+The project aims to solve the pain point of sudden rain on campus by adopting a "shared economy" model similar to power bank rental stations, providing **24-hour unattended** rain gear services.
 
 ---
 
-### 系统功能与特性
+### 🛠️ Features & Functionality
 
-系统核心逻辑是在校园高频活动区设置智能终端站点，学生通过刷卡（模拟校园一卡通）进行交互。每个站点硬件设计包含 **12个智能槽位**，通过算法自动分配归还位置。
+The core logic involves placing intelligent terminal stations in high-traffic campus areas. Students interact with the system via RFID cards (simulating campus ID cards). Each station hardware is designed with **12 smart slots**, using algorithms to automatically assign return positions.
 
-#### 用户端 (User Terminal)
+#### 📱 User Terminal (Client)
+* **Multi-Type Gear Support**: Implements the **Factory Pattern** to manage various types of rain gear, including standard plastic umbrellas, windproof umbrellas, sunshades, and raincoats.
+* **Visual Map**: Renders a real-time campus map, dynamically displaying station locations and current inventory (available/empty slots).
 
-* **多类型雨具支持**：系统通过工厂模式管理多种雨具，包括普通塑料伞、抗风伞、专用遮阳伞及雨衣。
-* **可视化地图**：实时渲染校园地图，动态显示各站点位置及当前剩余库存（可用/空槽）。
-
-#### 管理端 (Management Dashboard)
-
-* **全局监控**：实时监控所有站点的在线状态与库存水位，辅助调度决策。
-* **雨具生命周期管理**：支持雨具的状态变更。
-* **数据统计**：可视化展示订单流水与用户活跃度，生成运营报表。
+#### 💻 Management Dashboard (Admin)
+* **Global Monitoring**: Real-time monitoring of online status and inventory levels of all stations to assist in dispatching decisions.
+* **Lifecycle Management**: Supports full status tracking and modification for rain gear (e.g., available, damaged, lost).
+* **Data Statistics**: Visualizes order streams and user activity trends to generate operational reports.
 
 ---
 
-### 架构设计与技术实现
+### 🏗️ Architecture & Technical Implementation
 
-本项目采用经典的 **分层架构**，并针对性能与并发进行了深度的优化设计：
+The project adopts a classic **Layered Architecture**, optimized deeply for performance and concurrency:
 
-- **表现层 (UI Layer)**：使用 Qt Widgets 构建，通过 QSS 实现深色系现代化界面。
-- **业务逻辑层 (Service Layer)**：封装核心业务（如 `AuthService`, `BorrowService`），负责业务流程控制。
-- **数据访问层 (DAO Layer)**：通过 **DAO 模式** 将 SQL 操作与业务逻辑分离，确保数据持久化的独立性。
-- **通用设施层 (Utils Layer)**：
-  - **线程安全数据库管理**：实现了基于 **Thread-Local (线程局部存储)** 机制的 `ConnectionPool`。系统根据线程 ID 动态生成独立的连接实例，并通过 `getThreadLocalConnection` 确保每个线程拥有独立的数据库上下文，完美解决了 Qt 数据库模块在多线程环境下的并发冲突问题。
-  - **混合数据加载策略**：设计了 `MapConfigLoader` 配置加载器。采用 **"静态配置 + 动态数据"** 的混合加载模式——站点坐标、名称等静态数据从本地 JSON 资源 (`:/map/map_config.json`) 毫秒级预加载，而库存水位等动态数据从数据库实时拉取。这种策略在保证数据实时性的同时，极大地降低了数据库 I/O 压力，提升了地图渲染性能。
+* **UI Layer**: Built with **Qt Widgets**, featuring a modern dark-themed interface implemented via **QSS**.
+* **Service Layer**: Encapsulates core business logic (e.g., `AuthService`, `BorrowService`) and handles workflow control.
+* **DAO Layer**: Separates SQL operations from business logic using the **DAO Pattern**, ensuring the independence of data persistence.
+* **Utils Layer**:
+    * **Thread-Safe Database Management**: Implemented a `ConnectionPool` based on the **Thread-Local Storage (TLS)** mechanism. The system dynamically generates independent connection instances based on Thread IDs. The `getThreadLocalConnection` method ensures each thread possesses its own database context, perfectly resolving concurrency conflicts within the Qt SQL module in multi-threaded environments.
+    * **Hybrid Data Loading Strategy**: Designed a `MapConfigLoader`. Adopts a **"Static Configuration + Dynamic Data"** hybrid mode—static data like station coordinates and names are pre-loaded from local JSON resources (`:/map/map_config.json`) in milliseconds, while dynamic data (inventory levels) is fetched from the database in real-time. This strategy guarantees real-time accuracy while significantly reducing database I/O overhead and improving map rendering performance.
 
 ---
 
-### 📂 项目结构
+### 📂 Project Structure
 
 ```text
 Rainhub/
-├── sql/                    # 数据库脚本
-│   ├── init_db.sql         # 包含建库、建表语句
-│   └── data_insert.sql     # 初始化测试数据（站点、雨具、测试用户）
+├── sql/                    # Database Scripts
+│   ├── init_db.sql         # Schema creation script
+│   └── data_insert.sql     # Initial test data (stations, gear, test users)
 ├── src/
-│   ├── admin_ui/           # 管理端界面逻辑（UI交互与槽函数）
-│   ├── client_ui/          # 用户端界面逻辑（含自定义控件与动画）
-│   ├── control/            # 业务逻辑层（Service），处理借还算法与鉴权
-│   ├── dao/                # 数据访问层（DAO），封装所有 SQL 操作
-│   ├── model/              # 数据实体类（User, RainGear等）
-│   └── utils/              # 工具类（线程级数据库连接池/静态站点数据加载类）
-├── assets/                 # 静态资源（图标、地图JSON配置、QSS样式表）
-├── third_party/            # 第三方依赖（MySQL Connector/C++ 动态库）
-└── CMakeLists.txt          # CMake 构建脚本
-```
+│   ├── admin_ui/           # Admin UI Logic (Interactions & Slots)
+│   ├── client_ui/          # Client UI Logic (Custom Widgets & Animations)
+│   ├── control/            # Service Layer (Business Logic, Auth, Algo)
+│   ├── dao/                # Data Access Object Layer (SQL Encapsulation)
+│   ├── model/              # Data Entities (POJOs: User, RainGear, etc.)
+│   └── utils/              # Utilities (Thread-Local DB Pool, Map Loader)
+├── assets/                 # Static Resources (Icons, Map JSON, QSS)
+├── third_party/            # Dependencies (MySQL Connector/C++ DLLs)
+└── CMakeLists.txt          # CMake Build Script
+🚀 Run Guide
+1. Prerequisites
+Compiler: MinGW 11.2+ or MSVC 2019+ (Must support C++17)
 
+Framework: Qt 6.x (Tested on 6.9.3)
 
+Database: MySQL 8.0+
 
-### 运行指南 (Run Guide)
+Build Tool: CMake 3.16+
 
-#### 1. 环境准备
+2. Database Configuration
+Navigate to the sql directory and run the scripts using a DB tool (e.g., Navicat or MySQL Workbench):
 
-- **编译器**：MinGW 11.2+ 或 MSVC 2019+ (支持 C++17)
-- **框架**：Qt 6.x (已测试 6.9.3)
-- **数据库**：MySQL 8.0+
-- **构建工具**：CMake 3.16+
+First, run init_db.sql to create the rainhub_db database and tables.
 
-#### 2. 数据库配置
+Then, run data_insert.sql to import default stations and test data.
 
-1. 进入 `sql` 目录，通过数据库管理工具（如 Navicat 或 MySQL Workbench）运行脚本：
+Open src/control/DatabaseManager.cpp and update the connection details:
 
-   - 先运行 `init_db.sql`：会自动创建 `rainhub_db` 数据库及所有表结构。
-   - 再运行 `data_insert.sql`：导入默认的站点和测试数据。
+C++
 
-2. 打开 `src/control/DatabaseManager.cpp`，修改连接配置：
+db.setUserName("your_username"); // TODO: Replace with your MySQL username
+db.setPassword("your_password"); // TODO: Replace with your MySQL password
+3. Build & Compile
+This project uses CMake for cross-platform building. Ensure CMake is installed and the Qt environment variables are set.
 
-   ```c++
-   db.setUserName("your_username"); // 替换为你的 MySQL 用户名
-   db.setPassword("your_password"); // 替换为你的 MySQL 密码
-   ```
+Bash
 
-#### 3. 编译与构建
-
-本项目使用 **CMake** 进行跨平台构建。请确保系统已安装 CMake 且已配置好 Qt 环境变量。
-
-```
-# 1. 克隆或下载项目后，进入项目根目录
+# 1. Clone or download the project, then enter the root directory
 cd Rainhub
 
-# 2. 创建并进入构建目录（推荐 Out-of-source build，保持源码整洁）
+# 2. Create and enter the build directory (Out-of-source build recommended)
 mkdir build && cd build
 
-# 3. 生成构建文件 (Makefiles 或 VS Solution)
+# 3. Generate build files (Makefiles or VS Solution)
 cmake ..
 
-# 4. 开始编译 (Release模式)
+# 4. Compile (Release mode)
 cmake --build . --config Release
-```
+4. Run
+After compilation, the executables will be generated in build/bin (or build/Release):
 
-#### 4. 运行
+Client App: Run RainHub.exe
 
-编译完成后，可执行文件将生成在 `build/bin` (或 `build/Release`) 目录下：
+Admin App: Run RainHub_Admin.exe
 
-- **用户端**：运行 `RainHub.exe`
-- **管理端**：运行 `RainHub_Admin.exe`
-
-------
-
-如果觉得这个项目有意思，欢迎 Star ⭐
-
+If you find this project interesting, please Star ⭐
