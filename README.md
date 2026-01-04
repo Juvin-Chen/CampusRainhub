@@ -5,9 +5,11 @@
 > **"No more being trapped in buildings on rainy days."**
 
 ### 🟢 Introduction
+
 **Campus RainHub** is an intelligent shared rain gear system designed for campus scenarios. It is an IoT solution developed with **C++17** and **Qt 6.9.3**, utilizing **MySQL 8.0** for underlying data storage.
 
 The project consists of two independent applications:
+
 1.  **User Self-Service Terminal (Client)**: Deployed at building entrances, supporting concurrent logins on multiple terminals for students to borrow and return gear independently.
 2.  **Comprehensive Management Dashboard (Admin)**: Used by operations staff for rain gear scheduling, station monitoring, and data statistics.
 
@@ -15,22 +17,24 @@ The project aims to solve the pain point of sudden rain on campus by adopting a 
 
 ---
 
-### 🛠️ Features & Functionality
+### Features & Functionality
 
 The core logic involves placing intelligent terminal stations in high-traffic campus areas. Students interact with the system via RFID cards (simulating campus ID cards). Each station hardware is designed with **12 smart slots**, using algorithms to automatically assign return positions.
 
-#### 📱 User Terminal (Client)
+#### User Terminal (Client)
+
 * **Multi-Type Gear Support**: Implements the **Factory Pattern** to manage various types of rain gear, including standard plastic umbrellas, windproof umbrellas, sunshades, and raincoats.
 * **Visual Map**: Renders a real-time campus map, dynamically displaying station locations and current inventory (available/empty slots).
 
-#### 💻 Management Dashboard (Admin)
+#### Management Dashboard (Admin)
+
 * **Global Monitoring**: Real-time monitoring of online status and inventory levels of all stations to assist in dispatching decisions.
 * **Lifecycle Management**: Supports full status tracking and modification for rain gear (e.g., available, damaged, lost).
 * **Data Statistics**: Visualizes order streams and user activity trends to generate operational reports.
 
 ---
 
-### 🏗️ Architecture & Technical Implementation
+### Architecture & Technical Implementation
 
 The project adopts a classic **Layered Architecture**, optimized deeply for performance and concurrency:
 
@@ -38,8 +42,8 @@ The project adopts a classic **Layered Architecture**, optimized deeply for perf
 * **Service Layer**: Encapsulates core business logic (e.g., `AuthService`, `BorrowService`) and handles workflow control.
 * **DAO Layer**: Separates SQL operations from business logic using the **DAO Pattern**, ensuring the independence of data persistence.
 * **Utils Layer**:
-    * **Thread-Safe Database Management**: Implemented a `ConnectionPool` based on the **Thread-Local Storage (TLS)** mechanism. The system dynamically generates independent connection instances based on Thread IDs. The `getThreadLocalConnection` method ensures each thread possesses its own database context, perfectly resolving concurrency conflicts within the Qt SQL module in multi-threaded environments.
-    * **Hybrid Data Loading Strategy**: Designed a `MapConfigLoader`. Adopts a **"Static Configuration + Dynamic Data"** hybrid mode—static data like station coordinates and names are pre-loaded from local JSON resources (`:/map/map_config.json`) in milliseconds, while dynamic data (inventory levels) is fetched from the database in real-time. This strategy guarantees real-time accuracy while significantly reducing database I/O overhead and improving map rendering performance.
+  * **Thread-Safe Database Management**: Implemented a `ConnectionPool` based on the **Thread-Local Storage (TLS)** mechanism. The system dynamically generates independent connection instances based on Thread IDs. The `getThreadLocalConnection` method ensures each thread possesses its own database context, perfectly resolving concurrency conflicts within the Qt SQL module in multi-threaded environments.
+  * **Hybrid Data Loading Strategy**: Designed a `MapConfigLoader`. Adopts a **"Static Configuration + Dynamic Data"** hybrid mode—static data like station coordinates and names are pre-loaded from local JSON resources (`:/map/map_config.json`) in milliseconds, while dynamic data (inventory levels) is fetched from the database in real-time. This strategy guarantees real-time accuracy while significantly reducing database I/O overhead and improving map rendering performance.
 
 ---
 
@@ -60,34 +64,42 @@ Rainhub/
 ├── assets/                 # Static Resources (Icons, Map JSON, QSS)
 ├── third_party/            # Dependencies (MySQL Connector/C++ DLLs)
 └── CMakeLists.txt          # CMake Build Script
-🚀 Run Guide
-1. Prerequisites
-Compiler: MinGW 11.2+ or MSVC 2019+ (Must support C++17)
+```
 
-Framework: Qt 6.x (Tested on 6.9.3)
 
-Database: MySQL 8.0+
 
-Build Tool: CMake 3.16+
+### Run Guide
 
-2. Database Configuration
-Navigate to the sql directory and run the scripts using a DB tool (e.g., Navicat or MySQL Workbench):
+#### 1. Prerequisites
 
-First, run init_db.sql to create the rainhub_db database and tables.
+- **Compiler**: MinGW 11.2+ or MSVC 2019+ (Must support **C++17**)
+- **Framework**: Qt 6.x (Tested on **6.9.3**)
+- **Database**: MySQL 8.0+
+- **Build Tool**: CMake 3.16+
 
-Then, run data_insert.sql to import default stations and test data.
+#### 2. Database Configuration
 
-Open src/control/DatabaseManager.cpp and update the connection details:
+1. Navigate to the `sql` directory and run the scripts using a DB tool (e.g., Navicat or MySQL Workbench):
 
-C++
+   - First, run `init_db.sql` to create the `rainhub_db` database and tables.
+   - Then, run `data_insert.sql` to import default stations and test data.
 
-db.setUserName("your_username"); // TODO: Replace with your MySQL username
-db.setPassword("your_password"); // TODO: Replace with your MySQL password
-3. Build & Compile
-This project uses CMake for cross-platform building. Ensure CMake is installed and the Qt environment variables are set.
+2. Open `src/control/DatabaseManager.cpp` and update the connection details:
+
+   C++
+
+   ```
+   db.setUserName("your_username"); // TODO: Replace with your MySQL username
+   db.setPassword("your_password"); // TODO: Replace with your MySQL password
+   ```
+
+#### 3. Build & Compile
+
+This project uses **CMake** for cross-platform building. Ensure CMake is installed and the Qt environment variables are set.
 
 Bash
 
+```
 # 1. Clone or download the project, then enter the root directory
 cd Rainhub
 
@@ -99,11 +111,15 @@ cmake ..
 
 # 4. Compile (Release mode)
 cmake --build . --config Release
-4. Run
-After compilation, the executables will be generated in build/bin (or build/Release):
+```
 
-Client App: Run RainHub.exe
+#### 4. Run
 
-Admin App: Run RainHub_Admin.exe
+After compilation, the executables will be generated in `build/bin` (or `build/Release`):
 
-If you find this project interesting, please Star ⭐
+- **Client App**: Run `RainHub.exe`
+- **Admin App**: Run `RainHub_Admin.exe`
+
+------
+
+> If you find this project interesting, please **Star** ⭐
