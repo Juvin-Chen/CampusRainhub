@@ -15,7 +15,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
-#include <QMessageBox>
+#include <QMessageBox> 
 #include <QTimer>
 
 MapPage::MapPage(StationService *stationService, QWidget *parent)
@@ -84,7 +84,7 @@ void MapPage::loadMapStations()
         delete child;
     }
     
-    // ========== 优化：分离静态数据和动态数据 ==========
+    // 优化：分离静态数据和动态数据 
     
     // 1. 从 JSON 读取静态配置（站点名称、坐标、描述）- 极快
     QMap<int, StationConfig> stationConfigs = MapConfigLoader::loadStationConfigs();
