@@ -8,12 +8,14 @@
 //add借出记录
 bool RecordDao::addBorrowRecord(QSqlDatabase& db, const QString& userId, const QString& gearId) {
     QSqlQuery query(db);
-    // 使用系统时间而不是数据库NOW()，确保与归还时间计算时使用的时间源一致
+    // 使用系统时间，格式化为字符串存储，完全避免时区问题
     QDateTime borrowTime = QDateTime::currentDateTime();
-    query.prepare(QStringLiteral("INSERT INTO record (user_id, gear_id, borrow_time, cost) VALUES (?, ?, ?, 0.0)"));
+    QString borrowTimeStr = borrowTime.toString("yyyy-MM-dd hh:mm:ss");
+    
+    query.prepare(QStringLiteral("INSERT INTO record (user_id, gear_id, borrow_time, cost) VALUES (?, ?, STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), 0.0)"));
     query.addBindValue(userId);
     query.addBindValue(gearId);
-    query.addBindValue(borrowTime);
+    query.addBindValue(borrowTimeStr);
 
     if (!query.exec()) {
         qCritical() << "插入借还记录失败:" << query.lastError().text();
@@ -34,20 +36,26 @@ std::optional<BorrowRecord> RecordDao::selectUnfinishedByUserId(QSqlDatabase& db
         return std::nullopt;
     }
     if (query.next()) {
-        // 从数据库读取时间，确保时区正确（MySQL的DATETIME没有时区，需要明确指定为本地时间）
-        QDateTime borrowTime = query.value("borrow_time").toDateTime();
-        // 如果读取的时间无效或时区不正确，使用本地时间重新设置
+        // 从数据库读取时间，使用字符串格式读取，完全避免时区问题
+        QString borrowTimeStr = query.value("borrow_time").toString();
+        QDateTime borrowTime = QDateTime::fromString(borrowTimeStr, "yyyy-MM-dd hh:mm:ss");
+        
+        // 如果读取的时间无效，报错
         if (!borrowTime.isValid()) {
-            qWarning() << "从数据库读取的借出时间无效，使用当前时间";
-            borrowTime = QDateTime::currentDateTime();
-        } else {
-            // 确保时区为本地时区（MySQL DATETIME 存储的是本地时间，但Qt可能解释为UTC）
-            // Qt 6.9+ 使用 setTimeZone 代替 setTimeSpec
-            borrowTime = borrowTime.toLocalTime();
+            qCritical() << "从数据库读取的借出时间无效！字符串:" << borrowTimeStr;
+            return std::nullopt;
         }
-        QDateTime returnTime = query.value("return_time").toDateTime();
-        if (returnTime.isValid()) {
-            returnTime = returnTime.toLocalTime();
+        
+        // 确保是本地时间（fromString 默认就是本地时间，但明确转换一下更安全）
+        borrowTime = borrowTime.toLocalTime();
+        
+        QDateTime returnTime;
+        QString returnTimeStr = query.value("return_time").toString();
+        if (!returnTimeStr.isEmpty()) {
+            returnTime = QDateTime::fromString(returnTimeStr, "yyyy-MM-dd hh:mm:ss");
+            if (returnTime.isValid()) {
+                returnTime = returnTime.toLocalTime();
+            }
         }
         return BorrowRecord(query.value("record_id").toLongLong(), query.value("user_id").toString(), query.value("gear_id").toString(), borrowTime, returnTime, query.value("cost").toDouble());
     }
@@ -57,9 +65,11 @@ std::optional<BorrowRecord> RecordDao::selectUnfinishedByUserId(QSqlDatabase& db
 //更新还伞结账信息,这里传入record_id作为参数
 bool RecordDao::updateReturnInfo(QSqlDatabase& db, qint64 recordId, const QDateTime& returnTime, double cost) {
     QSqlQuery query(db);
+    // 使用字符串格式存储，完全避免时区问题
+    QString returnTimeStr = returnTime.toString("yyyy-MM-dd hh:mm:ss");
     //更新return_time为传入的时间，写入费用（确保与计费时使用的时间一致）
-    query.prepare(QStringLiteral("UPDATE record SET return_time = ?, cost = ? WHERE record_id = ?"));
-    query.addBindValue(returnTime);
+    query.prepare(QStringLiteral("UPDATE record SET return_time = STR_TO_DATE(?, '%Y-%m-%d %H:%i:%s'), cost = ? WHERE record_id = ?"));
+    query.addBindValue(returnTimeStr);
     query.addBindValue(cost);
     query.addBindValue(recordId);
 

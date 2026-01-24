@@ -9,7 +9,7 @@ ServiceResult BorrowService::borrowGear(const QString& userId, Station stationId
     auto db = ConnectionPool::getThreadLocalConnection();
     if (!db.isOpen()) return {false,"数据库连接失败"};
 
-    //检查用户是否存在&激活
+    //检查用户是否存在 & 激活
     auto userBox=userDao.selectById(db, userId);
     if (!userBox) return {false,"用户不存在"};
     if (!userBox->get_is_active()) return {false, "账户未激活，请先去激活"};
@@ -52,7 +52,7 @@ ServiceResult BorrowService::borrowGear(const QString& userId, Station stationId
         success = false;
     }
 
-    //更新雨具状态为借出（保留原始站点ID，以便统计哪个站点借出的雨具最多）
+    //更新雨具状态为借出
     Station originalStation = gear->get_station_id();
     // 正常情况下，雨具应该有station_id。如果为Unknown，可能是数据异常，但不影响借伞流程
     if (originalStation == Station::Unknown) {
