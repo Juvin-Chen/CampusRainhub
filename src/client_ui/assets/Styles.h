@@ -1,53 +1,37 @@
-/* 
-  QSS
-  UI样式表，用于设置QWidget的样式，更现代化，更美观
-  白色简洁主题
+/* QSS
+  UI样式表 - 清晨迷雾版 (Morning Mist) 
 */
 
 #pragma once
 
 #include <QString>
 
-
 namespace Styles {
 
-//配色方案 - 白色简洁主题
+//配色方案
 namespace Colors {
-    //主色调-灰色系
-    constexpr const char* Primary = "#4a5568";
-    constexpr const char* PrimaryDark = "#2d3748";
-    constexpr const char* PrimaryLight = "#718096";
-    constexpr const char* GradientStart = "#ffffff"; // 渐变起点（白色）
-    constexpr const char* GradientEnd = "#f7fafc";   // 渐变终点（浅灰）
-    
-    //强调色-清新绿
-    constexpr const char* Accent = "#00d4aa";
-    constexpr const char* AccentHover = "#00f5c4";
-    
-    //状态色
-    constexpr const char* Success = "#00d68f";
-    constexpr const char* Warning = "#ffaa00";
-    constexpr const char* Danger = "#ff3d71";
-    constexpr const char* Info = "#0095ff";
-    
-    // 中性色
-    constexpr const char* TextPrimary = "#1a1a2e";
-    constexpr const char* TextSecondary = "#4a4a68";
-    constexpr const char* TextMuted = "#8f8fa3";
-    constexpr const char* Background = "#f0f2f5";
-    constexpr const char* CardBg = "#ffffff";
-    constexpr const char* Border = "#e4e9f2";
+    constexpr const char* Background = "#f5f7fa";    
+    constexpr const char* Surface = "#ffffff";       
+    constexpr const char* Primary = "#409eff";       
+    constexpr const char* Success = "#67c23a";       
+    constexpr const char* Warning = "#e6a23c";
+    constexpr const char* Danger = "#f56c6c";
+    constexpr const char* TextPrimary = "#303133";   
+    constexpr const char* TextSecondary = "#606266"; 
+    constexpr const char* TextPlaceholder = "#909399"; 
+    constexpr const char* Border = "#dcdfe6";        
 }
 
 //全局应用样式
 inline QString globalStyle() {
     return QStringLiteral(R"(
         * {
-            font-family: 'Microsoft YaHei UI', 'Segoe UI', 'PingFang SC', sans-serif;
+            font-family: 'Microsoft YaHei UI', 'Segoe UI', sans-serif;
+            outline: none;
         }
         
         QMainWindow {
-            background: #ffffff;
+            background-color: #f5f7fa; 
         }
         
         QWidget#centralWidget {
@@ -57,558 +41,447 @@ inline QString globalStyle() {
         QMessageBox {
             background-color: #ffffff;
         }
-        
         QMessageBox QLabel {
-            color: #1a1a2e;
+            color: #303133;
             font-size: 14px;
         }
-        
         QMessageBox QPushButton {
-            min-width: 80px;
-            padding: 8px 20px;
-            background: #4a5568;
+            background-color: #409eff;
             color: white;
+            border-radius: 4px;
+            padding: 6px 20px;
             border: none;
-            border-radius: 6px;
-            font-weight: 600;
+            min-width: 60px;
         }
         
-        QMessageBox QPushButton:hover {
-            background: #2d3748;
-        }
-        
+        /* === 下拉框样式修复开始 === */
         QComboBox {
-            padding: 10px 16px;
             background-color: #ffffff;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
+            border: 1px solid #dcdfe6; 
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: #303133; /* 正常状态下的文字颜色：深灰 */
             font-size: 14px;
-            color: #1a1a2e;
-            min-height: 20px;
         }
-        
         QComboBox:hover {
-            border-color: #cbd5e0;
-            background-color: #ffffff;
+            border-color: #c0c4cc;
         }
-        
-        QComboBox:focus {
-            border-color: #4a5568;
-            background-color: #ffffff;
-        }
-        
         QComboBox::drop-down {
             border: none;
-            padding-right: 10px;
+            width: 30px;
+            background: transparent; /* 确保下拉箭头背景透明 */
         }
-        
         QComboBox::down-arrow {
             image: none;
             border-left: 5px solid transparent;
             border-right: 5px solid transparent;
-            border-top: 6px solid #4a5568;
+            border-top: 6px solid #909399; 
             margin-right: 10px;
         }
         
+        /* 【关键修复】强制设置下拉弹窗的背景和颜色 */
         QComboBox QAbstractItemView {
-            background-color: #ffffff;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 6px;
-            selection-background-color: #4a5568;
-            selection-color: #ffffff;
+            background-color: #ffffff; /* 弹窗背景：纯白 */
+            color: #303133;            /* 弹窗文字：深灰 */
+            border: 1px solid #e4e7ed;
+            selection-background-color: #ecf5ff; /* 选中项背景：浅蓝 */
+            selection-color: #409eff;            /* 选中项文字：亮蓝 */
             outline: none;
+            min-width: 120px;
         }
         
+        /* 针对每一项的额外保险设置 */
         QComboBox QAbstractItemView::item {
-            padding: 8px 12px;
-            min-height: 28px;
-            color: #1a1a2e;
+            color: #303133;
             background-color: #ffffff;
+            min-height: 30px; /* 增加选项高度，更好点 */
         }
-        
-        QComboBox QAbstractItemView::item:hover {
-            background-color: #f7fafc;
-            color: #2d3748;
-        }
-        
         QComboBox QAbstractItemView::item:selected {
-            background-color: #4a5568;
-            color: #ffffff;
+            background-color: #ecf5ff;
+            color: #409eff;
         }
+        /* === 下拉框样式修复结束 === */
         
         QLineEdit {
-            padding: 12px 16px;
             background-color: #ffffff;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
+            border: 1px solid #dcdfe6;
+            border-radius: 4px;
+            padding: 8px 12px;
+            color: #303133; 
             font-size: 14px;
-            color: #1a1a2e;
         }
-        
-        QLineEdit:hover {
-            border-color: #cbd5e0;
-        }
-        
         QLineEdit:focus {
-            border-color: #4a5568;
-            background-color: #ffffff;
+            border-color: #409eff; 
         }
-        
         QLineEdit::placeholder {
-            color: #8f8fa3;
+            color: #c0c4cc;
         }
         
         QTextBrowser {
             background-color: #ffffff;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 16px;
+            border: none; 
+            border-radius: 8px;
+            padding: 15px;
+            color: #606266;
             font-size: 14px;
-            color: #1a1a2e;
         }
         
         QScrollBar:vertical {
-            background: #f7fafc;
-            width: 8px;
-            border-radius: 4px;
-            margin: 0;
+            background: transparent;
+            width: 6px;
+            margin: 0px;
         }
-        
         QScrollBar::handle:vertical {
-            background: #cbd5e0;
-            border-radius: 4px;
-            min-height: 30px;
+            background: #c0c4cc;
+            border-radius: 3px;
         }
-        
         QScrollBar::handle:vertical:hover {
-            background: #a0aec0;
+            background: #909399;
         }
-        
         QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-            height: 0;
+            height: 0px;
         }
         
         QTableWidget {
             background-color: #ffffff;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            gridline-color: #e2e8f0;
+            border: none; 
+            border-radius: 8px;
+            gridline-color: transparent; 
+            color: #606266;
+            font-size: 13px;
+            alternate-background-color: #f9fafc; 
+        }
+        QTableWidget::item {
+            padding: 10px;
+            border-bottom: 1px solid #ebeef5; 
+        }
+        QTableWidget::item:selected {
+            background-color: #ecf5ff; 
+            color: #409eff;
+        }
+        
+        /* 表头修复：浅灰背景，深色文字 */
+        QHeaderView::section {
+            background-color: #f5f7fa; 
+            color: #303133;            
+            padding: 8px;              
+            border: none;
+            border-bottom: 1px solid #ebeef5;
+            border-right: 1px solid #ebeef5; 
+            font-weight: bold;
             font-size: 13px;
         }
-        
-        QTableWidget::item {
-            padding: 8px;
-            color: #1a1a2e;
-        }
-        
-        QTableWidget::item:selected {
-            background-color: #edf2f7;
-            color: #2d3748;
-        }
-        
-        QHeaderView::section {
-            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                stop:0 #f8f9fa, stop:1 #f0f2f5);
-            color: #4a4a68;
-            font-weight: 600;
-            padding: 10px;
+        QTableWidget QTableCornerButton::section {
+            background-color: #f5f7fa;
             border: none;
-            border-bottom: 2px solid #e4e9f2;
         }
     )");
 }
 
-//页面容器样式（毛玻璃卡片）
 inline QString pageContainer() {
     return QStringLiteral(R"(
-        background-color: rgba(255, 255, 255, 0.92);
-        border-radius: 24px;
-        border: 1px solid rgba(255, 255, 255, 0.5);
+        background-color: #ffffff; 
+        border-radius: 8px;
     )");
 }
 
 //按钮样式
 namespace Buttons {
-    // 主要按钮 - 灰色系
     inline QString primary() {
         return QStringLiteral(R"(
             QPushButton {
-                background: #4a5568;
+                background-color: #409eff;
                 color: white;
                 border: none;
-                border-radius: 12px;
-                padding: 14px 32px;
-                font-size: 16px;
-                font-weight: 600;
-                min-width: 120px;
+                border-radius: 4px;
+                padding: 10px 24px;
+                font-size: 14px;
+                font-weight: 500;
             }
             QPushButton:hover {
-                background: #2d3748;
+                background-color: #66b1ff;
             }
             QPushButton:pressed {
-                background: #1a202c;
-            }
-            QPushButton:disabled {
-                background: #bdc3c7;
-                color: #7f8c8d;
+                background-color: #3a8ee6;
             }
         )");
     }
-    
-    //大型主要按钮
-    inline QString primaryLarge() {
-        return QStringLiteral(R"(
-            QPushButton {
-                background: #4a5568;
-                color: white;
-                border: none;
-                border-radius: 16px;
-                padding: 20px 48px;
-                font-size: 20px;
-                font-weight: 700;
-                min-width: 200px;
-            }
-            QPushButton:hover {
-                background: #2d3748;
-            }
-            QPushButton:pressed {
-                background: #1a202c;
-            }
-        )");
-    }
-    
-    //次要按钮-透明边框
-    inline QString secondary() {
-        return QStringLiteral(R"(
-            QPushButton {
-                background: #ffffff;
-                color: #4a5568;
-                border: 2px solid #4a5568;
-                border-radius: 12px;
-                padding: 12px 28px;
-                font-size: 15px;
-                font-weight: 600;
-            }
-            QPushButton:hover {
-                background: #f7fafc;
-                border-color: #2d3748;
-                color: #2d3748;
-            }
-            QPushButton:pressed {
-                background: #edf2f7;
-            }
-        )");
-    }
-    
-    //强调按钮-青绿色
+
     inline QString accent() {
         return QStringLiteral(R"(
             QPushButton {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #00d4aa, stop:1 #00b894);
+                background-color: #67c23a;
                 color: white;
                 border: none;
-                border-radius: 12px;
-                padding: 14px 32px;
-                font-size: 16px;
-                font-weight: 600;
-            }
-            QPushButton:hover {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #00f5c4, stop:1 #00d4aa);
-            }
-            QPushButton:pressed {
-                background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                    stop:0 #00b894, stop:1 #009b7d);
-            }
-        )");
-    }
-    
-    //功能大按钮（借伞/还伞）
-    inline QString feature() {
-        return QStringLiteral(R"(
-            QPushButton {
-                background: #ffffff;
-                color: #1a1a2e;
-                border: 2px solid #e2e8f0;
-                border-radius: 20px;
-                padding: 24px;
-                font-size: 22px;
-                font-weight: 700;
-                min-width: 220px;
-                min-height: 100px;
-            }
-            QPushButton:hover {
-                background: #f7fafc;
-                border-color: #4a5568;
-                color: #2d3748;
-            }
-            QPushButton:pressed {
-                background: #edf2f7;
-                border-color: #2d3748;
-            }
-        )");
-    }
-    
-    // 底部导航按钮
-    inline QString nav() {
-        return QStringLiteral(R"(
-            QPushButton {
-                background: #ffffff;
-                color: #4a4a68;
-                border: 1px solid #e2e8f0;
-                border-radius: 14px;
-                padding: 12px 20px;
+                border-radius: 4px;
+                padding: 10px 24px;
                 font-size: 14px;
-                font-weight: 600;
+                font-weight: 500;
             }
             QPushButton:hover {
-                background: #f7fafc;
-                color: #2d3748;
-                border-color: #4a5568;
+                background-color: #85ce61;
+            }
+            QPushButton:pressed {
+                background-color: #5daf34;
             }
         )");
     }
     
-    //侧边栏导航按钮（管理员后台）
-    inline QString sideNav() {
-        return QStringLiteral(R"(
-            QPushButton {
-                background: transparent;
-                color: rgba(255, 255, 255, 0.8);
-                border: none;
-                border-radius: 12px;
-                padding: 14px 20px;
-                font-size: 15px;
-                font-weight: 600;
-                text-align: left;
-            }
-            QPushButton:hover {
-                background: rgba(255, 255, 255, 0.15);
-                color: #FFFFFF;
-            }
-        )");
-    }
-    
-    //侧边栏导航按钮（选中状态）
-    inline QString sideNavActive() {
-        return QStringLiteral(R"(
-            QPushButton {
-                background: rgba(255, 255, 255, 0.25);
-                color: #FFFFFF;
-                border: none;
-                border-radius: 12px;
-                padding: 14px 20px;
-                font-size: 15px;
-                font-weight: 700;
-                text-align: left;
-            }
-            QPushButton:hover {
-                background: rgba(255, 255, 255, 0.3);
-            }
-        )");
-    }
-    
-    //文字链接按钮
     inline QString link() {
         return QStringLiteral(R"(
             QPushButton {
-                background: transparent;
-                color: #4a5568;
+                background-color: transparent;
+                color: #409eff;
                 border: none;
-                padding: 10px 16px;
+                padding: 5px;
                 font-size: 14px;
-                font-weight: 500;
-                min-height: 32px;
                 text-decoration: underline;
+                text-align: left;
             }
             QPushButton:hover {
-                color: #2d3748;
+                color: #66b1ff;
             }
         )");
     }
     
-    //返回按钮
+    inline QString primaryLarge() {
+        return QStringLiteral(R"(
+            QPushButton {
+                background-color: #409eff;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 16px 40px;
+                font-size: 18px;
+                font-weight: 600;
+            }
+            QPushButton:hover {
+                background-color: #66b1ff;
+            }
+        )");
+    }
+    
+    inline QString secondary() {
+        return QStringLiteral(R"(
+            QPushButton {
+                background-color: #ffffff;
+                color: #606266;
+                border: 1px solid #dcdfe6;
+                border-radius: 4px;
+                padding: 10px 24px;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                color: #409eff;
+                border-color: #c6e2ff;
+                background-color: #ecf5ff; 
+            }
+        )");
+    }
+    
+    // 加大的借还伞按钮
+    inline QString feature() {
+        return QStringLiteral(R"(
+            QPushButton {
+                background-color: #ffffff;
+                color: #303133;
+                border: 1px solid #ebeef5;
+                border-radius: 16px;
+                padding: 30px;         
+                font-size: 26px;       
+                font-weight: bold;
+                min-width: 280px;      
+                min-height: 140px;     
+            }
+            QPushButton:hover {
+                color: #409eff;
+                border-color: #409eff;
+                background-color: #f0f9eb;
+            }
+            QPushButton:pressed {
+                background-color: #ecf5ff;
+            }
+        )");
+    }
+    
     inline QString back() {
         return QStringLiteral(R"(
             QPushButton {
-                background: #ffffff;
-                color: #4a4a68;
-                border: 1px solid #e2e8f0;
-                border-radius: 10px;
-                padding: 10px 24px;
+                background-color: transparent;
+                color: #909399;
+                border: none;
                 font-size: 14px;
-                font-weight: 500;
+                padding: 5px 10px;
             }
             QPushButton:hover {
-                background: #f7fafc;
-                color: #2d3748;
-                border-color: #4a5568;
+                color: #409eff;
             }
         )");
     }
     
-    //退出登录按钮
     inline QString logout() {
         return QStringLiteral(R"(
             QPushButton {
-                background: rgba(255, 61, 113, 0.1);
-                color: #ff3d71;
-                border: 1px solid rgba(255, 61, 113, 0.3);
-                border-radius: 10px;
-                padding: 8px 20px;
+                background-color: #fef0f0; 
+                color: #f56c6c;
+                border: 1px solid #fde2e2;
+                border-radius: 4px;
+                padding: 6px 16px;
                 font-size: 13px;
-                font-weight: 600;
             }
             QPushButton:hover {
-                background: #ff3d71;
+                background-color: #f56c6c;
                 color: white;
-                border-color: #ff3d71;
             }
         )");
     }
     
-    //危险操作按钮
-    inline QString danger() {
+    inline QString nav() {
         return QStringLiteral(R"(
             QPushButton {
-                background: #ff3d71;
-                color: white;
-                border: none;
-                border-radius: 10px;
-                padding: 10px 24px;
-                font-size: 14px;
-                font-weight: 600;
+                background-color: #ffffff;
+                color: #606266;
+                border: 1px solid #ebeef5;
+                border-radius: 6px;
+                padding: 10px;
             }
             QPushButton:hover {
-                background: #e63950;
+                color: #409eff;
+                border-color: #409eff;
+            }
+        )");
+    }
+    
+    inline QString sideNav() {
+        return QStringLiteral(R"(
+            QPushButton {
+                background-color: transparent;
+                color: #bfcbd9;
+                border: none;
+                text-align: left;
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            QPushButton:hover {
+                background-color: #263445;
+                color: #ffffff;
+            }
+        )");
+    }
+    
+    inline QString sideNavActive() {
+        return QStringLiteral(R"(
+            QPushButton {
+                background-color: #409eff;
+                color: #ffffff;
+                border: none;
+                text-align: left;
+                padding: 12px 20px;
+                font-size: 14px;
+                font-weight: bold;
             }
         )");
     }
 }
 
-//标签样式 
 namespace Labels {
-    //大标题
     inline QString title() {
         return QStringLiteral(R"(
-            font-size: 36px;
-            font-weight: 800;
-            color: #1a1a2e;
-            letter-spacing: -0.5px;
+            font-size: 32px;
+            font-weight: bold;
+            color: #303133; 
         )");
     }
     
-    //页面标题
     inline QString pageTitle() {
         return QStringLiteral(R"(
-            font-size: 26px;
-            font-weight: 700;
-            color: #1a1a2e;
+            font-size: 24px;
+            font-weight: 600;
+            color: #303133;
         )");
     }
     
-    //副标题
     inline QString subtitle() {
         return QStringLiteral(R"(
-            font-size: 16px;
-            font-weight: 400;
-            color: #4a4a68;
+            font-size: 14px;
+            color: #909399;
         )");
     }
     
-    //小提示文字（无背景）
     inline QString hint() {
         return QStringLiteral(R"(
-            font-size: 14px;
-            color: #8f8fa3;
-            background: transparent;
+            font-size: 12px;
+            color: #909399;
         )");
     }
     
-    //表单标签
     inline QString formLabel() {
         return QStringLiteral(R"(
             font-size: 14px;
             font-weight: 600;
-            color: #4a4a68;
+            color: #606266;
         )");
     }
     
-    //余额显示（无背景）
     inline QString balance() {
         return QStringLiteral(R"(
-            font-size: 32px;
-            font-weight: 700;
-            color: #00d68f;
-            background: transparent;
+            font-size: 36px;
+            font-weight: bold;
+            color: #67c23a; 
         )");
     }
     
-    //信息标签（无背景）
     inline QString info() {
         return QStringLiteral(R"(
-            font-size: 18px;
-            font-weight: 600;
-            color: #1a1a2e;
-            background: transparent;
-            padding: 4px 0;
+            font-size: 16px;
+            color: #303133;
         )");
     }
     
-    //欢迎页图标
     inline QString welcomeIcon() {
         return QStringLiteral(R"(
-            font-size: 72px;
-            color: #4a5568;
+            font-size: 64px;
+            color: #409eff;
         )");
     }
     
-    //侧边栏标题（管理员后台）
     inline QString sidebarTitle() {
         return QStringLiteral(R"(
-            font-size: 20px;
-            font-weight: 700;
-            color: #FFFFFF;
-            background: transparent;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            padding: 10px;
         )");
     }
     
-    //统计数字
     inline QString statNumber() {
         return QStringLiteral(R"(
             font-size: 28px;
-            font-weight: 700;
-            color: #4a5568;
-            background: transparent;
+            font-weight: bold;
+            color: #409eff;
         )");
     }
     
-    //统计标签
     inline QString statLabel() {
         return QStringLiteral(R"(
-            font-size: 13px;
-            font-weight: 500;
-            color: #8f8fa3;
-            background: transparent;
+            font-size: 12px;
+            color: #909399;
         )");
     }
 }
 
-//槽位卡片样式
 namespace SlotCard {
     inline QString available() {
         return QStringLiteral(R"(
             SlotItem {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #ffffff, stop:1 #f8fff8);
-                border: 2px solid #00d68f;
-                border-radius: 16px;
+                background-color: #f0f9eb; 
+                border: 1px solid #e1f3d8;
+                border-radius: 12px;
             }
             SlotItem:hover {
-                border-color: #00f5a0;
-                background: #f0fff5;
+                background-color: #67c23a; 
+                border: 2px solid #67c23a;
+                background-color: #f0f9eb;
             }
         )");
     }
@@ -616,14 +489,9 @@ namespace SlotCard {
     inline QString empty() {
         return QStringLiteral(R"(
             SlotItem {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #ffffff, stop:1 #f5f5f5);
-                border: 2px solid #e4e9f2;
-                border-radius: 16px;
-            }
-            SlotItem:hover {
-                border-color: #bdc3c7;
-                background: #fafafa;
+                background-color: #f4f4f5;
+                border: 1px solid #e9e9eb;
+                border-radius: 12px;
             }
         )");
     }
@@ -631,10 +499,9 @@ namespace SlotCard {
     inline QString maintenance() {
         return QStringLiteral(R"(
             SlotItem {
-                background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                    stop:0 #ffffff, stop:1 #fff5f5);
-                border: 2px solid #ff3d71;
-                border-radius: 16px;
+                background-color: #fef0f0;
+                border: 1px solid #fde2e2;
+                border-radius: 12px;
             }
         )");
     }
@@ -642,37 +509,33 @@ namespace SlotCard {
     inline QString selected() {
         return QStringLiteral(R"(
             SlotItem {
-                background: #ffffff;
-                border: 3px solid #4a5568;
-                border-radius: 16px;
+                background-color: #ffffff;
+                border: 2px solid #409eff;
+                border-radius: 12px;
             }
         )");
     }
 }
 
-//地图容器样式 
 inline QString mapContainer() {
     return QStringLiteral(R"(
-        background: #ffffff;
-        border: 2px solid #e2e8f0;
-        border-radius: 16px;
+        background-color: #ffffff;
+        border: 1px solid #ebeef5;
+        border-radius: 12px;
     )");
 }
 
-//管理员后台侧边栏样式
 inline QString adminSidebar() {
     return QStringLiteral(R"(
-        background: #2d3748;
-        border-radius: 0px;
+        background-color: #304156;
     )");
 }
 
-//统计卡片样式
 inline QString statCard() {
     return QStringLiteral(R"(
         background-color: #ffffff;
-        border-radius: 16px;
-        border: 1px solid #e2e8f0;
+        border: 1px solid #ebeef5;
+        border-radius: 8px;
     )");
 }
 
