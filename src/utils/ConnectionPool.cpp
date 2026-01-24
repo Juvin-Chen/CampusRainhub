@@ -24,6 +24,7 @@ QSqlDatabase ConnectionPool::getThreadLocalConnection(){
         }else{
             qInfo()<<"Connected to database: "<<db.databaseName();
             // 设置数据库连接时区为本地时区，确保时间存储和读取时不做时区转换
+            // 添加的数据库连接时区只是设置作为额外保障，业务逻辑中代码已改为字符串读取已经避免了时间读取上的时区问题
             QSqlQuery timezoneQuery(db);
             // 获取系统时区偏移（小时）
             QDateTime localTime = QDateTime::currentDateTime();
