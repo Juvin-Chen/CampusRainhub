@@ -153,7 +153,15 @@ void DashboardPage::refreshStations()
     for (size_t i = 0; i < stations.size(); ++i) {
         const auto &station = stations[i];
         if (station) {
-            m_stationComboBox->addItem(station->get_name(), static_cast<int>(station->get_station()));
+            const bool isOnline = station->get_online();
+            QString displayName = station->get_name();
+            if (!isOnline) {
+                displayName += tr("（离线）");
+            }
+            m_stationComboBox->addItem(displayName, static_cast<int>(station->get_station()));
+            const int itemIndex = m_stationComboBox->count() - 1;
+            // 额外存一份在线状态：Qt::UserRole+1
+            m_stationComboBox->setItemData(itemIndex, isOnline, Qt::UserRole + 1);
         }
     }
 }
@@ -162,5 +170,14 @@ void DashboardPage::onStationChanged(int index)
 {
     if (index < 0) return;
     m_currentStationId = m_stationComboBox->itemData(index).toInt();
+    if (m_currentStationId == 0) return;
+
+    const bool isOnline = m_stationComboBox->itemData(index, Qt::UserRole + 1).toBool();
+    if (!isOnline) {
+        QMessageBox::warning(this, tr("提示"), tr("该站点处于离线状态，无法提供服务"));
+        // 自动取消选择，避免进入借还流程
+        m_stationComboBox->setCurrentIndex(0);
+        m_currentStationId = 0;
+    }
 }
 
