@@ -12,7 +12,7 @@ class QLabel;
 class QLineEdit;
 class AuthService;
 
-//刷卡提示页
+// 刷卡提示页
 class CardReadPage : public QWidget {
     Q_OBJECT
 public:
@@ -26,7 +26,7 @@ private:
     void setupUi();
 };
 
-//用户信息输入页
+// 用户信息输入页
 class UserInputPage : public QWidget {
     Q_OBJECT
 public:
@@ -47,7 +47,7 @@ private:
     QLineEdit *m_inputName;
 };
 
-//首次登录设置密码页
+// 首次登录设置密码页
 class FirstLoginPage : public QWidget {
     Q_OBJECT
 public:
@@ -71,7 +71,7 @@ private:
     QLineEdit *m_inputConfirmPass;
 };
 
-//密码登录页
+// 密码登录页
 class LoginPage : public QWidget {
     Q_OBJECT
 public:
