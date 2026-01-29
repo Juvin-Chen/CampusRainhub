@@ -8,7 +8,7 @@
 
 **Campus RainHub** aims to **reshape campus micro-mobility**. It is a shared rain gear service platform integrating intelligent user terminal interaction, real-time backend monitoring, and data visualization for decision-making.
 
-Developed using **C++17** and **Qt 6.9.3**, and relying on **MySQL 8.0** for underlying data storage, it is an IoT solution tailored specifically for campus scenarios.
+Developed using **C++17** and **Qt 6.9.3**, **built with CMake**, and relying on **MySQL 8.0** for data storage, it is an IoT solution tailored specifically for campus scenarios.
 
 The project consists of two independent applications:
 
@@ -23,16 +23,20 @@ The project aims to solve the pain point of sudden rain on campus by adopting a 
 
 The core logic involves placing intelligent terminal stations in high-traffic campus areas. Students interact with the system via RFID cards (simulating campus ID cards). Each station hardware is designed with **12 smart slots**, using algorithms to automatically assign return positions.
 
-#### User Terminal (Client)
+#### User Terminal
 
-* **Multi-Type Gear Support**: Implements the **Factory Pattern** to manage various types of rain gear, including standard plastic umbrellas, windproof umbrellas, sunshades, and raincoats.
-* **Visual Map**: Renders a real-time campus map, dynamically displaying station locations and current inventory (available/empty slots).
+- **Multi-type Rain Gear Support**: The system manages various types of rain gear through the Factory Pattern, including ordinary plastic umbrellas, windproof umbrellas, dedicated sunshades, and raincoats.
+- **Visualized Map**: Real-time rendering of the campus map, dynamically displaying the location of each station and current remaining inventory (available/empty slots).
+- **Built-in User Guide**: Explains borrowing/returning rules and fee standards, helping new users quickly get started with using the self-service terminal.
 
-#### Management Dashboard (Admin)
+#### Management Dashboard
 
-* **Global Monitoring**: Real-time monitoring of online status and inventory levels of all stations to assist in dispatching decisions.
-* **Lifecycle Management**: Supports full status tracking and modification for rain gear (e.g., available, damaged, lost).
-* **Data Statistics**: Visualizes order streams and user activity trends to generate operational reports.
+- **Global Monitoring**: Real-time monitoring of the online status and inventory levels of all stations, assisting in scheduling decisions.
+- **Station and Rain Gear Lifecycle Management**: Supports status changes for stations and rain gear.
+- **User Account and Security Management**
+  - **Status Audit**: Supports administrators in viewing the **activation status** of user accounts (activated/pending).
+  - **Emergency Security Operations**: Provides an administrator-level **password reset interface**. When a user forgets their password or the account shows anomalies, administrators can manually modify the user password in the backend, ensuring account controllability and security.
+- **Data Statistics**: Visual display of order transaction history.
 
 ---
 
@@ -63,7 +67,7 @@ Rainhub/
 │   ├── dao/                # Data Access Object Layer (SQL Encapsulation)
 │   ├── model/              # Data Entities (POJOs: User, RainGear, etc.)
 │   └── utils/              # Utilities (Thread-Local DB Pool, Map Loader)
-├── assets/                 # Static Resources (Icons, Map JSON, QSS)
+├── assets/                 # Static Resources (Icons, Map JSON)
 ├── third_party/            # Dependencies (MySQL Connector/C++ DLLs)
 └── CMakeLists.txt          # CMake Build Script
 ```
