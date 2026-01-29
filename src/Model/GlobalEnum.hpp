@@ -1,9 +1,9 @@
 /*
-定义全局枚举变量，一个是雨具类型枚举，还有一个是站点枚举
+    定义全局枚举变量，一个是雨具类型枚举，还有一个是站点枚举
 */
 #pragma once
 
-#include <QObject> //需要使用Q_ENUM等Qt特性
+#include <QObject> // 需要使用Q_ENUM等Qt特性
 
 //雨具类型枚举,每个数字都对应不同伞的类别,共4种
 enum class GearType {
@@ -17,9 +17,9 @@ enum class GearType {
 //雨具状态枚举
 enum class GearStatus{
     Unknown = 0,
-    Available = 1,  //可用
-    Borrowed = 2,  //借出
-    Broken = 3,  //损坏
+    Available = 1,  // 可用
+    Borrowed = 2,  // 借出
+    Broken = 3,  // 损坏
 };
 
 //站点枚举,使用英文避免乱码

@@ -1,5 +1,5 @@
 /*
-定义了雨具工厂类RainGearFactory，用于创建不同类型的雨具实例。
+  定义了雨具工厂类RainGearFactory，用于创建不同类型的雨具实例。
 */
 #pragma once
 
@@ -11,7 +11,7 @@
 
 class RainGearFactory {
 public:
-    //静态工厂方法，根据类型创建对应的雨具实例
+    // 静态工厂方法，根据类型创建对应的雨具实例
     static std::unique_ptr<RainGear> create_raingear(GearType type, const QString &id) {
         switch (type) {
             case GearType::StandardPlastic:
